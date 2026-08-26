@@ -8,8 +8,9 @@ import { SECTIONS } from "./journey";
 import { getTalk } from "./dialogue";
 
 const NAV = 72;
-const DWELL = 9000;
-const MAX_WAIT = 18000;
+const MIN_STAY = 16000;
+const REST = 14000;
+const MAX_STAY = 56000;
 
 const pages = () => SECTIONS.map(({ id }) => id);
 
@@ -17,6 +18,7 @@ let on = false;
 let timer;
 let guided = false;
 let guidedUntil = 0;
+let lastAct = 0;
 const listeners = new Set();
 
 const tell = () => listeners.forEach((fn) => fn(on));
@@ -77,19 +79,32 @@ const step = () => {
   schedule();
 };
 
+const bump = () => {
+  lastAct = performance.now();
+};
+
 const schedule = () => {
   clear();
   const started = performance.now();
+  lastAct = started;
   const wait = () => {
     if (!on) return;
-    const elapsed = performance.now() - started;
+    const now = performance.now();
+    const elapsed = now - started;
     let busy = false;
     try {
       busy = getTalk().busy;
     } catch {
       busy = false;
     }
-    if (elapsed >= DWELL && (!busy || elapsed >= MAX_WAIT)) {
+    // While they are talking, the quiet clock does not run. A poke or a
+    // click also pushes it back, so the reader can finish the exchange.
+    if (busy) lastAct = now;
+
+    const quiet = now - lastAct;
+    const ready = elapsed >= MIN_STAY && !busy && quiet >= REST;
+    const overtime = elapsed >= MAX_STAY && !busy;
+    if (ready || overtime) {
       step();
       return;
     }
@@ -127,11 +142,23 @@ if (typeof window !== "undefined") {
   };
 
   window.addEventListener("wheel", interrupt, { passive: true });
-  window.addEventListener("touchstart", interrupt, { passive: true });
+  window.addEventListener(
+    "touchmove",
+    (event) => {
+      const y = event.touches?.[0]?.clientY;
+      if (y == null) return;
+      if (!interrupt._y) {
+        interrupt._y = y;
+        return;
+      }
+      if (Math.abs(y - interrupt._y) > 48) interrupt();
+      interrupt._y = y;
+    },
+    { passive: true }
+  );
   window.addEventListener("pointerdown", (event) => {
     if (event.target?.closest?.("[data-auto-scroll]")) return;
-    if (event.pointerType === "mouse" && event.button === 0) return;
-    interrupt();
+    if (on && !guided) bump();
   }, { passive: true });
   window.addEventListener("keydown", (event) => {
     if (
@@ -140,10 +167,16 @@ if (typeof window !== "undefined") {
       )
     ) {
       interrupt();
+      return;
     }
+    if (on) bump();
   });
   window.addEventListener("click", (event) => {
     if (event.target?.closest?.("[data-auto-scroll]")) return;
-    if (event.target?.closest?.("nav, a[href^='#']")) interrupt();
+    if (event.target?.closest?.("nav, a[href^='#']")) {
+      interrupt();
+      return;
+    }
+    if (on) bump();
   });
 }
