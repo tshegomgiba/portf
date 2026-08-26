@@ -12,14 +12,9 @@ import SnowEffect from './animation/SnowEffect'
 import CustomCursor from './animation/CustomCursor'
 import Preloader from './animation/Preloader'
 import MiniCompanion from './animation/MiniCompanion'
-import StackSection from './Components/StackSection'
 import DesktopHint from './Components/DesktopHint'
 
 const Companion = lazy(() => import('./animation/Companion'))
-
-// The order these are stacked in. Each one covers the one before it as you
-// scroll, so this list is also the painting order.
-const PANELS = [Hero, About, Experience, Sphere, Projects, ContactUs]
 
 function App() {
   return (
@@ -34,13 +29,12 @@ function App() {
       <ScrollProgress />
       <Navbar />
       <DesktopHint />
-      <div className="stack-track">
-        {PANELS.map((Panel, i) => (
-          <StackSection key={i} index={i} last={i === PANELS.length - 1}>
-            <Panel />
-          </StackSection>
-        ))}
-      </div>
+      <Hero />
+      <About />
+      <Experience />
+      <Sphere />
+      <Projects />
+      <ContactUs />
     </div>
   )
 }

@@ -1,11 +1,16 @@
-import { entries, certifications } from "./experience";
+import { timeline, certifications } from "./experience";
 import { projects } from "./projects";
 
 const plural = (count, singular) =>
   count === 1 ? singular : `${singular}s`;
 
-export const roleCount = entries.length;
-export const companyCount = new Set(entries.map((entry) => entry.company)).size;
+export const internshipCount = timeline.reduce(
+  (total, group) => total + group.roles.length,
+  0
+);
+export const companyCount = new Set(
+  timeline.flatMap((group) => group.roles.map((role) => role.company))
+).size;
 export const certificationCount = certifications.length;
 export const projectCount = projects.length;
 export const liveProjectCount = projects.filter(
@@ -13,7 +18,7 @@ export const liveProjectCount = projects.filter(
 ).length;
 
 export const stats = [
-  { value: roleCount, label: plural(roleCount, "Dev internship") },
+  { value: internshipCount, label: plural(internshipCount, "Dev internship") },
   { value: certificationCount, label: plural(certificationCount, "Certification") },
   { value: liveProjectCount, label: `Live ${plural(liveProjectCount, "project")}` },
 ];
