@@ -11,7 +11,12 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-const ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_KEY;
+// Web3Forms access keys are public client keys. Keep a fallback so a Vercel
+// build that did not pick up `.env.production` still reaches the inbox.
+const ACCESS_KEY = (
+  import.meta.env.VITE_WEB3FORMS_KEY ||
+  "619de087-0c8c-4cd2-b2f4-402f8d1c36f2"
+).trim();
 
 const CosmicContactForm = () => {
   const [formData, setFormData] = useState({
