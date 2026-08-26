@@ -22,6 +22,7 @@ let repeating =
 const repeatWatchers = new Set();
 
 let muted = !isAtmosphereOn();
+let live = null;
 
 const cutSpeech = () => {
   if (talking) talking.volume = 0;
@@ -45,7 +46,16 @@ if (typeof window !== "undefined") {
   });
   watchAtmosphere((playing) => {
     muted = !playing;
-    if (muted) cutSpeech();
+    if (muted) {
+      cutSpeech();
+      return;
+    }
+    arm();
+    if (live && live.token === gen && pending) {
+      clearTimeout(pending);
+      pending = null;
+      play(live.item, live.token);
+    }
   });
 }
 
@@ -147,8 +157,7 @@ const voiceFor = (who) => {
 };
 
 if (typeof window !== "undefined") {
-  const unlock = (event) => {
-    if (event.target?.closest?.("[data-sound-toggle]")) return;
+  const unlock = () => {
     arm();
     window.removeEventListener("pointerdown", unlock);
   };
@@ -165,6 +174,7 @@ if (typeof window !== "undefined") {
 const finish = (item, token) => {
   if (token !== gen) return;
   talking = null;
+  if (live?.item === item) live = null;
   liftAtmosphere();
   try {
     item.onend?.();
@@ -179,18 +189,9 @@ const finish = (item, token) => {
   }, 70);
 };
 
-const utter = (item, token) => {
+const play = (item, token) => {
   if (typeof window === "undefined" || !window.speechSynthesis) {
     finish(item, token);
-    return;
-  }
-
-  if (muted) {
-    pending = setTimeout(() => {
-      pending = null;
-      if (token !== gen) return;
-      finish(item, token);
-    }, Math.min(1600, 280 + item.text.length * 22));
     return;
   }
 
@@ -232,6 +233,26 @@ const utter = (item, token) => {
   }, 40);
 };
 
+const utter = (item, token) => {
+  live = { item, token };
+
+  if (typeof window === "undefined" || !window.speechSynthesis) {
+    finish(item, token);
+    return;
+  }
+
+  if (muted) {
+    pending = setTimeout(() => {
+      pending = null;
+      if (token !== gen) return;
+      finish(item, token);
+    }, Math.min(1600, 280 + item.text.length * 22));
+    return;
+  }
+
+  play(item, token);
+};
+
 const pump = () => {
   if (busy || !queue.length) return;
   const next = queue.shift();
@@ -244,6 +265,7 @@ export const hush = () => {
   queue = [];
   busy = false;
   talking = null;
+  live = null;
   if (pending) {
     clearTimeout(pending);
     pending = null;

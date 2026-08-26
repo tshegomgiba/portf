@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { SECTIONS } from "./journey";
 import { getTalk } from "./dialogue";
 import { hush, isRepeatOn, watchRepeat } from "./voice";
+import { isAutoScrollOn } from "./autoScroll";
 
 const HIRE = '[data-pixel="hire"], #contact button[type="submit"]';
 const DEEP = '[data-pixel="deep"]';
@@ -65,13 +66,15 @@ export const useCompanionTalk = ({
     const tick = window.setInterval(() => {
       const talk = getTalk();
       const now = performance.now();
+      const touring = isAutoScrollOn();
       const idle =
         repeating ||
+        touring ||
         (document.hasFocus() &&
           now - lastAct.current > 8000 &&
           !["INPUT", "TEXTAREA"].includes(document.activeElement?.tagName));
 
-      if (section !== "contact") talk.linger(section, (now - started) / 1000);
+      if (section !== "contact") talk.linger(section, (now - started) / 1000, touring);
 
       if (!idle || talk.current?.tag === "Goodbye") {
         idleShown.current = false;
@@ -81,8 +84,8 @@ export const useCompanionTalk = ({
 
       if (!idleShown.current || now >= nextIdle.current) {
         idleShown.current = true;
-        nextIdle.current = now + 12000;
-        talk.idle();
+        nextIdle.current = now + (touring ? 2200 : 12000);
+        talk.idle(touring);
       }
     }, 1600);
 

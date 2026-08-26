@@ -8,9 +8,9 @@ import { SECTIONS } from "./journey";
 import { getTalk } from "./dialogue";
 
 const NAV = 72;
-const MIN_STAY = 16000;
-const REST = 14000;
-const MAX_STAY = 56000;
+const MIN_STAY = 9000;
+const REST = 5500;
+const MAX_STAY = 34000;
 
 const pages = () => SECTIONS.map(({ id }) => id);
 

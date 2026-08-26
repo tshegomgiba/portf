@@ -473,8 +473,8 @@ class CompanionTalk {
     this.arrive(section);
   }
 
-  linger(section, seconds) {
-    if (!this.opened || this.greeting || seconds < 11 || this.busy) return;
+  linger(section, seconds, touring = false) {
+    if (!this.opened || this.greeting || seconds < (touring ? 5 : 11) || this.busy) return;
     if (this.played.has(`linger:${section}`)) return;
     this.say(pick(linger, this.used, "linger"), "Lesson", {
       key: `linger:${section}`,
@@ -483,7 +483,7 @@ class CompanionTalk {
     });
   }
 
-  idle() {
+  idle(touring = false) {
     if (!this.opened || this.greeting || this.busy) return;
 
     if (this.dwellSection === "stack" && !this.played.has("stack-1")) {
@@ -518,6 +518,8 @@ class CompanionTalk {
       this.say(onExperience[1], "Lesson", { key: "experience-1", who: "bit" });
       return;
     }
+
+    if (touring) return;
 
     const roll = Math.random();
     const heat = this.heat;
@@ -598,19 +600,6 @@ class CompanionTalk {
   hush() {
     this.reading = "";
     this.flush(false);
-  }
-
-  hearNow() {
-    if (!this.opened) return;
-    this.flush(false);
-    if (!this.introDone) {
-      this.played.delete("intro");
-      this.arrive("top");
-      return;
-    }
-    const section = this.dwellSection || "top";
-    this.release(section);
-    this.arrive(section, true);
   }
 
   dropRead() {
