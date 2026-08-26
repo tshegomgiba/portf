@@ -334,19 +334,32 @@ class CompanionTalk {
     );
   }
 
-  /** The loading screen has lifted. Intro is the first line on the first page. */
+  get starting() {
+    if (!this.opened) return true;
+    if (this.current?.tag === "Intro") return true;
+    return this.queue.some((beat) => beat.tag === "Intro");
+  }
+
+  wipe() {
+    this.flush(true);
+    this.used.clear();
+    this.visited.clear();
+    this.lastIndex = 0;
+    this.saidHello = false;
+    this.dwell = 0;
+    this.dwellSection = "top";
+    this.turn = "bit";
+    this.sentHome = false;
+    this.reading = "";
+    this.opened = false;
+  }
+
+  /** The loading screen has lifted. Always the first-visit intro, never a resume. */
   open() {
     if (this.opened) return;
+    this.wipe();
     this.opened = true;
-    const fresh =
-      typeof window !== "undefined" &&
-      performance.getEntriesByType?.("navigation")?.[0]?.type === "reload";
-    const atTop =
-      fresh ||
-      this.dwellSection === "top" ||
-      this.dwellSection === "" ||
-      (typeof window !== "undefined" && window.scrollY < 120);
-    this.arrive(atTop ? "top" : this.dwellSection);
+    this.arrive("top");
   }
 
   arrive(section, replay = false) {
@@ -411,8 +424,14 @@ class CompanionTalk {
   enter(section, index) {
     if (section) this.visited.add(section);
 
+    if (!this.opened) return;
+
+    // Intro owns the first visit. Do not jump to a later page's script
+    // just because the scroll position was restored.
+    if (this.starting && section !== "top") return;
+
     const changed = Boolean(section) && section !== this.dwellSection;
-    const goingBack = this.opened && index < this.lastIndex;
+    const goingBack = index < this.lastIndex;
     this.lastIndex = index;
 
     if (section && this.dwellSection !== section) {
@@ -423,8 +442,6 @@ class CompanionTalk {
     if (section === "contact" && this.current?.tag !== "Goodbye") {
       this.sentHome = false;
     }
-
-    if (!this.opened) return;
 
     if (goingBack || changed) {
       this.release(section);
@@ -608,3 +625,10 @@ export const getTalk = () => {
   }
   return talk;
 };
+
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => {
+    talk?.wipe();
+    talk = null;
+  });
+}
