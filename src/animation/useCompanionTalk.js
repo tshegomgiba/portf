@@ -30,7 +30,7 @@ export const useCompanionTalk = ({
   useEffect(() => getTalk().on(setBeat), []);
 
   useEffect(() => {
-    if (!enabled || paused) return undefined;
+    if (!enabled) return undefined;
 
     if (prevSection.current !== sectionIndex) {
       const was = SECTIONS[prevSection.current]?.id;
@@ -43,7 +43,7 @@ export const useCompanionTalk = ({
     nextIdle.current = 0;
     if (section === "contact") lastAct.current = performance.now();
     return undefined;
-  }, [section, sectionIndex, enabled, paused]);
+  }, [section, sectionIndex, enabled]);
 
   useEffect(() => {
     if (!enabled) return undefined;

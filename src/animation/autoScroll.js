@@ -1,8 +1,3 @@
-/**
- * Optional page-by-page tour. Each section is a stop. After a pause, it
- * moves to the next one. Manual scrolling turns it off so it never fights
- * the reader.
- */
 
 import { SECTIONS } from "./journey";
 import { getTalk } from "./dialogue";
@@ -113,6 +108,10 @@ const schedule = () => {
   timer = window.setTimeout(wait, 420);
 };
 
+export const stopAutoScroll = () => {
+  if (on) stop();
+};
+
 export const isAutoScrollOn = () => on;
 
 export const watchAutoScroll = (fn) => {
@@ -172,7 +171,7 @@ if (typeof window !== "undefined") {
     if (on) bump();
   });
   window.addEventListener("click", (event) => {
-    if (event.target?.closest?.("[data-auto-scroll]")) return;
+    if (event.target?.closest?.("[data-auto-scroll], [data-experience-restart]")) return;
     if (event.target?.closest?.("nav, a[href^='#']")) {
       interrupt();
       return;

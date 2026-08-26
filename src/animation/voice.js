@@ -50,6 +50,7 @@ if (typeof window !== "undefined") {
       cutSpeech();
       return;
     }
+    // Unlock speech only. Never start or rewind the script from mute state.
     arm();
     if (live && live.token === gen && pending) {
       clearTimeout(pending);

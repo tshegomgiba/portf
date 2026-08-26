@@ -4,7 +4,6 @@
  * Pixel talks so the two do not fight.
  */
 
-const KEY = "sound-on";
 const BED = 0.18;
 const DUCKED = 0.055;
 
@@ -15,12 +14,9 @@ let ducked = false;
 let noteTimer;
 const live = [];
 
-const wanted = () => {
-  if (typeof window === "undefined") return false;
-  return window.localStorage.getItem(KEY) === "1";
-};
-
-let on = wanted();
+// Each visit starts unmuted. Mute is only a user choice during the session
+// and is not restored from storage, so a prior mute cannot leak into boot.
+let on = true;
 const listeners = new Set();
 
 const tell = () => listeners.forEach((fn) => fn(on));
@@ -161,7 +157,11 @@ const build = () => {
 };
 
 export const startAtmosphere = () => {
-  if (typeof window === "undefined" || started || !on) return;
+  if (typeof window === "undefined" || !on) return;
+  if (started) {
+    if (ctx?.state === "suspended") ctx.resume();
+    return;
+  }
   started = true;
   const audio = getCtx();
   if (audio.state === "suspended") audio.resume();
@@ -182,11 +182,16 @@ export const liftAtmosphere = () => {
 
 export const isAtmosphereOn = () => on;
 
+export const enableAtmosphere = () => {
+  const was = on;
+  on = true;
+  if (!was) tell();
+  startAtmosphere();
+  return on;
+};
+
 export const toggleAtmosphere = () => {
   on = !on;
-  if (typeof window !== "undefined") {
-    window.localStorage.setItem(KEY, on ? "1" : "0");
-  }
   // Tell listeners before touching the audio graph so voices cut on the
   // same click, not after the pads have already started winding down.
   tell();

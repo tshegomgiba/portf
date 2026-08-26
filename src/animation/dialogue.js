@@ -5,7 +5,6 @@
  */
 
 import { hush as hushVoice, speak } from "./voice";
-import { SECTIONS } from "./journey";
 
 const intro = [
   "Hi, I'm Pixel. I'll ride along.",
@@ -210,19 +209,6 @@ const beatsFrom = (lines, tag, { who = "pixel", joke = false, banter = false } =
     };
   });
 
-const pageAt = () => {
-  if (typeof window === "undefined") return "top";
-  const focus = window.scrollY + window.innerHeight * 0.42;
-  let at = "top";
-  SECTIONS.forEach(({ id }) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const top = el.getBoundingClientRect().top + window.scrollY;
-    if (focus >= top - 24) at = id;
-  });
-  return at;
-};
-
 const SCRIPT = {
   top: ["intro"],
   about: ["about-0", "creative", "creative-2", "linger:about"],
@@ -364,23 +350,30 @@ class CompanionTalk {
     this.opened = false;
   }
 
-  /** The loading screen has lifted. Start on whatever page the reader is on. */
-  open() {
-    if (this.opened) return;
+  reset() {
+    this.wipe();
+  }
+
+  /** Start a fresh session from the first line. `force` is Restart only. */
+  begin(force = false) {
+    if (this.opened && !force) return;
     this.wipe();
     this.opened = true;
-    const here = pageAt();
-    const index = Math.max(0, SECTIONS.findIndex(({ id }) => id === here));
-    this.lastIndex = index;
-    this.dwellSection = here;
-    if (here !== "top") this.introDone = true;
-    this.arrive(here, here !== "top");
+    this.lastIndex = 0;
+    this.dwellSection = "top";
+    this.introDone = false;
+    this.arrive("top");
+  }
+
+  open() {
+    this.begin();
   }
 
   arrive(section, replay = false) {
     if (!this.opened || !section) return;
 
     if (section === "top") {
+      if (!replay && this.played.has("intro")) return;
       this.introDone = false;
       this.say(intro, "Intro", {
         key: "intro",
@@ -449,27 +442,21 @@ class CompanionTalk {
       return;
     }
 
-    const changed = Boolean(section) && section !== this.dwellSection;
-    const goingBack = index < this.lastIndex;
-    this.lastIndex = index;
-
-    if (section && this.dwellSection !== section) {
-      this.dwell = 0;
-      this.dwellSection = section;
+    if (section === this.dwellSection) {
+      this.lastIndex = index;
+      return;
     }
+
+    this.lastIndex = index;
+    this.dwell = 0;
+    if (section) this.dwellSection = section;
 
     if (section === "contact" && this.current?.tag !== "Goodbye") {
       this.sentHome = false;
     }
 
-    if (goingBack || changed) {
-      if (section !== "top") this.introDone = true;
-      this.flush(false);
-      this.release(section);
-      this.arrive(section, true);
-      return;
-    }
-
+    if (section && section !== "top") this.introDone = true;
+    this.flush(false);
     this.arrive(section);
   }
 
@@ -641,14 +628,7 @@ class CompanionTalk {
 let talk;
 
 export const getTalk = () => {
-  if (!talk) {
-    talk = new CompanionTalk();
-    if (typeof window !== "undefined") {
-      window.setTimeout(() => {
-        if (talk && !talk.opened) talk.open();
-      }, 2800);
-    }
-  }
+  if (!talk) talk = new CompanionTalk();
   return talk;
 };
 

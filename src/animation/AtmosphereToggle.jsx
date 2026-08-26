@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ChevronsDown, Repeat, Volume2, VolumeX } from "lucide-react";
+import { ChevronsDown, Repeat, RotateCcw, Volume2, VolumeX } from "lucide-react";
 import {
   isAtmosphereOn,
   toggleAtmosphere,
@@ -11,6 +11,7 @@ import {
   toggleAutoScroll,
   watchAutoScroll,
 } from "./autoScroll";
+import { restartExperience } from "./experience";
 
 const AtmosphereToggle = () => {
   const [sound, setSound] = useState(isAtmosphereOn);
@@ -35,6 +36,16 @@ const AtmosphereToggle = () => {
         bottom: "max(1rem, env(safe-area-inset-bottom))",
       }}
     >
+      <button
+        type="button"
+        data-experience-restart
+        onClick={() => restartExperience()}
+        title="Restart from the beginning"
+        aria-label="Restart the experience from the first line"
+        className="flex h-11 w-11 md:h-10 md:w-10 items-center justify-center rounded-full border border-white/15 bg-[#16232f]/80 text-white/55 backdrop-blur-md transition-colors hover:bg-[#16232f] hover:text-white"
+      >
+        <RotateCcw size={15} />
+      </button>
       <button
         type="button"
         data-auto-scroll

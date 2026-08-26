@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import PixelSprite from "./PixelSprite";
-import { getTalk } from "./dialogue";
+import { bootExperience } from "./experience";
 
 const Preloader = () => {
   const [done, setDone] = useState(false);
@@ -28,7 +28,7 @@ const Preloader = () => {
       settled = true;
       setTimeout(() => {
         setDone(true);
-        getTalk().open();
+        bootExperience();
       }, 420);
     };
 

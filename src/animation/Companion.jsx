@@ -2023,7 +2023,6 @@ const Companion = () => {
       observer.disconnect();
       window.removeEventListener("resize", check);
       window.removeEventListener("load", remeasure);
-      hush();
     };
   }, [journey]);
 
