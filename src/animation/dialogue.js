@@ -139,10 +139,6 @@ const linger = [
   ],
 ];
 
-const backwards = [
-  ["Back a page.", "Fine. We'll recap."],
-];
-
 const ending = [
   "Well...",
   "You made it to the end.",
@@ -212,6 +208,15 @@ const beatsFrom = (lines, tag, { who = "pixel", joke = false, banter = false } =
       joke: Boolean(joke) && i === lines.length - 1,
     };
   });
+
+const SCRIPT = {
+  top: ["intro"],
+  about: ["about-0", "creative", "creative-2", "linger:about"],
+  experience: ["experience-0", "experience-1", "linger:experience"],
+  stack: ["stack-0", "stack-1", "stack-2", "linger:stack"],
+  projects: ["projects-0", "projects-1", "projects-2", "projects-3", "linger:projects"],
+  contact: ["ending", "ghost", "linger:contact"],
+};
 
 class CompanionTalk {
   constructor() {
@@ -340,7 +345,7 @@ class CompanionTalk {
     this.arrive(atTop ? "top" : this.dwellSection);
   }
 
-  arrive(section) {
+  arrive(section, replay = false) {
     if (!this.opened || !section) return;
 
     if (section === "top") {
@@ -351,19 +356,40 @@ class CompanionTalk {
       });
       return;
     }
-    if (this.greeting) return;
+    if (this.greeting && !replay) return;
 
     if (section === "about") {
-      this.say(onAbout, "Note", { key: "about-0", who: "pixel", banter: true });
+      this.say(onAbout, "Note", {
+        key: "about-0",
+        who: "pixel",
+        banter: true,
+        interrupt: replay,
+      });
     }
     if (section === "experience") {
-      this.say(onExperience[0], "Note", { key: "experience-0", who: "pixel", banter: true });
+      this.say(onExperience[0], "Note", {
+        key: "experience-0",
+        who: "pixel",
+        banter: true,
+        interrupt: replay,
+      });
     }
     if (section === "stack") {
-      this.say(onStack[0], "Stack", { key: "stack-0", who: "pixel", banter: true, joke: true });
+      this.say(onStack[0], "Stack", {
+        key: "stack-0",
+        who: "pixel",
+        banter: true,
+        joke: true,
+        interrupt: replay,
+      });
     }
     if (section === "projects") {
-      this.say(onProjects[0], "Work", { key: "projects-0", who: "pixel", banter: true });
+      this.say(onProjects[0], "Work", {
+        key: "projects-0",
+        who: "pixel",
+        banter: true,
+        interrupt: replay,
+      });
     }
     if (section === "contact") {
       this.say(ending, "Hello", {
@@ -374,17 +400,15 @@ class CompanionTalk {
     }
   }
 
+  release(section) {
+    (SCRIPT[section] || []).forEach((key) => this.played.delete(key));
+  }
+
   enter(section, index) {
     if (section) this.visited.add(section);
 
-    if (this.opened && index < this.lastIndex && !this.played.has("backwards")) {
-      this.say(backwards[0], "Lesson", {
-        key: "backwards",
-        interrupt: true,
-        who: "bit",
-        banter: true,
-      });
-    }
+    const changed = Boolean(section) && section !== this.dwellSection;
+    const goingBack = this.opened && index < this.lastIndex;
     this.lastIndex = index;
 
     if (section && this.dwellSection !== section) {
@@ -394,6 +418,14 @@ class CompanionTalk {
 
     if (section === "contact" && this.current?.tag !== "Goodbye") {
       this.sentHome = false;
+    }
+
+    if (!this.opened) return;
+
+    if (goingBack || changed) {
+      this.release(section);
+      this.arrive(section, true);
+      return;
     }
 
     this.arrive(section);

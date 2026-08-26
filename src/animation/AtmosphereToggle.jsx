@@ -1,18 +1,25 @@
 import React, { useEffect, useState } from "react";
-import { Repeat, Volume2, VolumeX } from "lucide-react";
+import { ChevronsDown, Repeat, Volume2, VolumeX } from "lucide-react";
 import {
   isAtmosphereOn,
   toggleAtmosphere,
   watchAtmosphere,
 } from "./atmosphere";
 import { cutSpeech, isRepeatOn, toggleRepeat, watchRepeat } from "./voice";
+import {
+  isAutoScrollOn,
+  toggleAutoScroll,
+  watchAutoScroll,
+} from "./autoScroll";
 
 const AtmosphereToggle = () => {
   const [sound, setSound] = useState(isAtmosphereOn);
   const [repeat, setRepeat] = useState(isRepeatOn);
+  const [tour, setTour] = useState(isAutoScrollOn);
 
   useEffect(() => watchAtmosphere(setSound), []);
   useEffect(() => watchRepeat(setRepeat), []);
+  useEffect(() => watchAutoScroll(setTour), []);
 
   const muteAll = () => {
     const next = toggleAtmosphere();
@@ -28,6 +35,19 @@ const AtmosphereToggle = () => {
         bottom: "max(1rem, env(safe-area-inset-bottom))",
       }}
     >
+      <button
+        type="button"
+        data-auto-scroll
+        onClick={() => setTour(toggleAutoScroll())}
+        title={tour ? "Stop page by page tour" : "Auto scroll, page by page"}
+        aria-label={tour ? "Stop page by page tour" : "Auto scroll the site, page by page"}
+        aria-pressed={tour}
+        className={`flex h-11 w-11 md:h-10 md:w-10 items-center justify-center rounded-full border border-white/15 backdrop-blur-md transition-colors hover:bg-[#16232f] ${
+          tour ? "bg-[#2f7ea8] text-white" : "bg-[#16232f]/80 text-white/55"
+        }`}
+      >
+        <ChevronsDown size={16} />
+      </button>
       <button
         type="button"
         onClick={() => setRepeat(toggleRepeat())}
