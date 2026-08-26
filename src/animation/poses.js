@@ -128,6 +128,105 @@ export const POSES = {
   },
 };
 
+/**
+ * Bit's teacher poses. Pixel builds and types; Bit lectures, marks, and
+ * points things out. Same channels so they still mix and fly between sets.
+ */
+export const TEACHER = {
+  lecture: {
+    sit: 0,
+    spine: 0.1,
+    headX: -0.08,
+    shoulderLX: -0.28,
+    shoulderLZ: -0.18,
+    elbowL: 0.4,
+    shoulderRX: -1.2,
+    shoulderRZ: -0.42,
+    elbowR: 0.12,
+    hip: -0.48,
+    knee: 0.88,
+  },
+  book: {
+    sit: 0.2,
+    spine: 0.16,
+    headX: 0.34,
+    shoulderLX: -0.98,
+    shoulderLZ: 0.2,
+    elbowL: 0.88,
+    shoulderRX: -0.98,
+    shoulderRZ: -0.2,
+    elbowR: 0.88,
+    hip: -0.72,
+    knee: 1.08,
+  },
+  grade: {
+    sit: 0,
+    spine: 0.12,
+    headX: 0.18,
+    shoulderLX: -0.82,
+    shoulderLZ: 0.38,
+    elbowL: 0.72,
+    shoulderRX: -0.95,
+    shoulderRZ: -0.5,
+    elbowR: 0.32,
+    hip: -0.5,
+    knee: 0.92,
+  },
+  chalk: {
+    sit: 0,
+    spine: 0.08,
+    headX: 0.1,
+    shoulderLX: -0.22,
+    shoulderLZ: -0.22,
+    elbowL: 0.38,
+    shoulderRX: -1.28,
+    shoulderRZ: 0.18,
+    elbowR: 0.2,
+    hip: -0.5,
+    knee: 0.95,
+  },
+  review: {
+    sit: 0,
+    spine: 0.12,
+    headX: 0.22,
+    shoulderLX: -1.05,
+    shoulderLZ: 0.28,
+    elbowL: 0.52,
+    shoulderRX: -1.05,
+    shoulderRZ: -0.28,
+    elbowR: 0.52,
+    hip: -0.48,
+    knee: 0.92,
+  },
+  invite: {
+    sit: 0,
+    spine: 0.04,
+    headX: -0.1,
+    shoulderLX: -0.72,
+    shoulderLZ: 0.58,
+    elbowL: 0.48,
+    shoulderRX: -0.38,
+    shoulderRZ: 0.28,
+    elbowR: 0.42,
+    hip: -0.48,
+    knee: 0.88,
+  },
+  // Between lessons Bit glides, still holding posture, not diving like Pixel.
+  glide: {
+    sit: 0,
+    spine: -0.08,
+    headX: -0.06,
+    shoulderLX: 0.28,
+    shoulderLZ: -0.22,
+    elbowL: 0.38,
+    shoulderRX: 0.18,
+    shoulderRZ: 0.28,
+    elbowR: 0.42,
+    hip: -0.32,
+    knee: 0.58,
+  },
+};
+
 export const makePose = () =>
   CHANNELS.reduce((pose, key) => {
     pose[key] = POSES.idle[key];

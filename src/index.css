@@ -13,6 +13,7 @@
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -22,8 +23,61 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+button,
+a,
+[role="button"] {
+  -webkit-tap-highlight-color: rgba(126, 200, 227, 0.28);
+  touch-action: manipulation;
+}
+
 ::selection {
-  background: rgba(47, 126, 168, 0.25);
+  background: rgba(126, 200, 227, 0.42);
+  color: #16232f;
+}
+
+::-moz-selection {
+  background: rgba(126, 200, 227, 0.42);
+  color: #16232f;
+}
+
+p, h1, h2, h3, h4, h5, li, blockquote, figcaption, dd, dt {
+  touch-action: manipulation;
+}
+
+.site-mark {
+  position: absolute;
+  background: linear-gradient(
+    180deg,
+    rgba(168, 216, 232, 0.62) 0%,
+    rgba(126, 200, 227, 0.44) 52%,
+    rgba(47, 126, 168, 0.28) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 rgba(47, 126, 168, 0.2);
+}
+
+.listen-chip {
+  position: fixed;
+  z-index: 46;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.7rem 0.32rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(47, 126, 168, 0.22);
+  background: rgba(232, 244, 250, 0.94);
+  color: #1a3a4d;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  box-shadow: 0 8px 20px -12px rgba(22, 35, 47, 0.45);
+  backdrop-filter: blur(8px);
+}
+
+.listen-chip:hover {
+  background: rgba(255, 255, 255, 0.98);
 }
 
 /* Set once the custom cursor takes over, and only on pointer devices. */
@@ -154,7 +208,8 @@ body {
 .bot-arm-near { transform: translate(25.6px, 26px) rotate(-14deg); }
 
 .bot-blink {
-  transform-origin: 21.6px 15.4px;
+  transform-box: fill-box;
+  transform-origin: center;
   animation: bot-blink 3.4s ease-in-out infinite;
 }
 
@@ -171,6 +226,107 @@ body {
 /* Waving wins over the walking swing on the near arm. */
 .bot-wave .bot-arm-near { animation: bot-arm-wave 0.44s ease-in-out infinite; }
 
+.bot-laugh { animation: bot-giggle 0.34s ease-in-out infinite; }
+@keyframes bot-giggle {
+  0%, 100% { transform: rotate(-7deg) translateY(0); }
+  50% { transform: rotate(7deg) translateY(-4px); }
+}
+
+.bot-teach-lecture:not(.bot-wave):not(.bot-walk) .bot-arm-near { animation: bot-point 1.6s ease-in-out infinite; }
+.bot-kit {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.bot-teach-book .bot-kit-book { animation: bot-page 5.5s ease-in-out infinite; }
+.bot-teach-grade .bot-kit-clip { animation: bot-clip 2.4s ease-in-out infinite; }
+.bot-teach-chalk .bot-kit-board { animation: bot-board 3.2s ease-in-out infinite; }
+.bot-teach-review .bot-kit-papers { animation: bot-fan 2.8s ease-in-out infinite; }
+.bot-teach-invite .bot-kit-plaque { animation: bot-plaque 1.8s ease-in-out infinite; }
+
+@keyframes bot-point {
+  0%, 100% { transform: translate(25.6px, 26px) rotate(-8deg); }
+  50% { transform: translate(25.6px, 26px) rotate(22deg); }
+}
+@keyframes bot-page {
+  0%, 70%, 100% { transform: rotate(0deg); }
+  40% { transform: rotate(-8deg) translateY(-1px); }
+}
+@keyframes bot-clip {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(6deg); }
+}
+@keyframes bot-board {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1.5px); }
+}
+@keyframes bot-fan {
+  0%, 100% { transform: rotate(-6deg); }
+  50% { transform: rotate(8deg); }
+}
+@keyframes bot-plaque {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+/* Sitting on a crate and putting itself back together. */
+.bot-fix-leg-l { transform: translate(31px, 62px) rotate(52deg); }
+.bot-fix-leg-r { transform: translate(49px, 62px) rotate(-52deg); }
+.bot-fix-arm-far { transform: translate(29px, 46px) rotate(22deg); }
+.bot-fix-arm-near { transform: translate(53px, 46px) rotate(-36deg); }
+.bot-fix-leg-l,
+.bot-fix-leg-r,
+.bot-fix-arm-far,
+.bot-fix-arm-near {
+  transform-origin: 0 0;
+}
+
+.bot-fix-wrench {
+  transform-origin: 0 11px;
+}
+
+.bot-fix .bot-blink {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.bot-fix .bot-fix-head {
+  transform-origin: 40px 29px;
+  animation: bot-fix-look 1.7s ease-in-out infinite;
+}
+
+.bot-fix .bot-fix-arm-near {
+  animation: bot-fix-arm 0.52s ease-in-out infinite;
+}
+
+.bot-fix .bot-fix-wrench {
+  animation: bot-fix-wrench 0.52s ease-in-out infinite;
+}
+
+.bot-fix .bot-fix-sparks {
+  transform-origin: 46px 44px;
+  animation: bot-fix-sparks 0.38s ease-in-out infinite;
+}
+
+@keyframes bot-fix-look {
+  0%, 100% { transform: rotate(10deg); }
+  50% { transform: rotate(20deg); }
+}
+
+@keyframes bot-fix-arm {
+  0%, 100% { transform: translate(53px, 46px) rotate(-30deg); }
+  50% { transform: translate(53px, 46px) rotate(-54deg); }
+}
+
+@keyframes bot-fix-wrench {
+  0%, 100% { transform: rotate(8deg); }
+  50% { transform: rotate(-18deg); }
+}
+
+@keyframes bot-fix-sparks {
+  0%, 100% { opacity: 0.2; transform: scale(0.7); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .bot-sprite,
   .bot-walk,
@@ -180,7 +336,18 @@ body {
   .bot-walk .bot-leg-back,
   .bot-walk .bot-arm-far,
   .bot-walk .bot-arm-near,
-  .bot-wave .bot-arm-near {
+  .bot-wave .bot-arm-near,
+  .bot-teach-lecture .bot-arm-near,
+  .bot-teach-book .bot-kit-book,
+  .bot-teach-grade .bot-kit-clip,
+  .bot-teach-chalk .bot-kit-board,
+  .bot-teach-review .bot-kit-papers,
+  .bot-teach-invite .bot-kit-plaque,
+  .bot-laugh,
+  .bot-fix .bot-fix-head,
+  .bot-fix .bot-fix-arm-near,
+  .bot-fix .bot-fix-wrench,
+  .bot-fix .bot-fix-sparks {
     animation: none;
   }
 }
@@ -296,6 +463,40 @@ body {
   background: radial-gradient(circle at 30% 30%, #b8e0f0, #2f7ea8);
   box-shadow: 0 12px 40px rgba(47, 126, 168, 0.35);
   animation: spin 6s linear infinite;
+}
+
+@keyframes snow-fall {
+  from {
+    transform: translate3d(0, -12vh, 0);
+  }
+  to {
+    transform: translate3d(var(--drift), 112vh, 0);
+  }
+}
+
+.snow-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.snow-flake {
+  position: absolute;
+  top: 0;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 0 5px rgba(47, 126, 168, 0.55), 0 0 3px rgba(255, 255, 255, 0.9);
+  animation-name: snow-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .snow-layer {
+    display: none;
+  }
 }
 
 @keyframes spin {

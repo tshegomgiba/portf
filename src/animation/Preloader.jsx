@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import PixelSprite from "./PixelSprite";
+import { getTalk } from "./dialogue";
 
 const Preloader = () => {
   const [done, setDone] = useState(false);
@@ -25,7 +26,10 @@ const Preloader = () => {
 
     const finish = () => {
       settled = true;
-      setTimeout(() => setDone(true), 620);
+      setTimeout(() => {
+        setDone(true);
+        setTimeout(() => getTalk().open(), 380);
+      }, 620);
     };
 
     frame = requestAnimationFrame(tick);

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
 const LINK_TARGETS = "a, button, [role='button'], summary, label[for]";
-const TEXT_TARGETS = "input, textarea, [contenteditable='true']";
+const TEXT_TARGETS =
+  "input, textarea, [contenteditable='true'], p, h1, h2, h3, h4, h5, li, blockquote, figcaption";
 
 const CustomCursor = () => {
   const dot = useRef(null);

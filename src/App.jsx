@@ -13,6 +13,8 @@ import CustomCursor from './animation/CustomCursor'
 import Preloader from './animation/Preloader'
 import MiniCompanion from './animation/MiniCompanion'
 import DesktopHint from './Components/DesktopHint'
+import AtmosphereToggle from './animation/AtmosphereToggle'
+import ReadAlong from './animation/ReadAlong'
 
 const Companion = lazy(() => import('./animation/Companion'))
 
@@ -26,6 +28,8 @@ function App() {
         <Companion />
       </Suspense>
       <MiniCompanion />
+      <ReadAlong />
+      <AtmosphereToggle />
       <ScrollProgress />
       <Navbar />
       <DesktopHint />

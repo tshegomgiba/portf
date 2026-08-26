@@ -54,6 +54,7 @@ const Projects = () => {
           {projects.map((project, index) => (
             <motion.div
               key={index}
+              data-pixel={project.title === "HiStakes" ? "deep" : undefined}
               className="relative group w-72 max-w-full"
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}

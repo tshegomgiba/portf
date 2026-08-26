@@ -5,9 +5,7 @@ import Aos from 'aos';
 import 'aos/dist/aos.css';
 import img1 from '../images/portrait.webp';
 import heroBg from '../images/pexels-stywo-1054218.webp';
-import HeroBgAnimation from '../Hero/HeroBgAnimation';
 import { motion } from 'framer-motion';
-import Stars from "../animation/stars";
 import { Typewriter } from "react-simple-typewriter";
 import { profile, socialLinks } from "../data/profile";
 
@@ -19,18 +17,21 @@ const SOCIAL_ICONS = {
 
 // Three.js is a heavy bundle, so it loads after the hero paints.
 const HeroOrb = lazy(() => import("../animation/HeroOrb"));
+const Stars = lazy(() => import("../animation/stars"));
+const HeroBgAnimation = lazy(() => import("../Hero/HeroBgAnimation"));
 
 const Hero = () => {
+  const lite = typeof window !== "undefined" && window.innerWidth < 768;
   const twinkleStars = useMemo(
     () =>
-      Array.from({ length: 80 }, (_, i) => ({
+      Array.from({ length: lite ? 18 : 80 }, (_, i) => ({
         id: i,
         x: Math.random() * 100,
         y: Math.random() * 100,
         size: Math.random() * 2.5 + 1,
         delay: Math.random() * 2,
       })),
-    []
+    [lite]
   );
 
   useEffect(() => {
@@ -75,26 +76,32 @@ const Hero = () => {
       {/* Centre scrim keeps the headline readable over the peaks */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(13,23,32,0.4)_0%,rgba(13,23,32,0.15)_45%,transparent_75%)] pointer-events-none" />
 
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen min-h-[100svh] px-6 md:px-12 lg:px-20 pt-24 pb-16 md:pt-28 md:pb-20 text-center">
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen min-h-[100svh] px-5 md:px-12 lg:px-20 pt-24 pb-28 md:pt-28 md:pb-20 text-center">
         {/* Portrait composition */}
         <div
           className="relative flex items-center justify-center w-full max-w-lg h-56 sm:h-64 md:h-72"
           data-aos="fade-up"
         >
           {/* Decorative animation layers sit behind the portrait */}
-          <div className="absolute inset-0 pointer-events-none">
-            <Stars />
-          </div>
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-70 scale-[0.55] sm:scale-[0.65] md:scale-75">
-            <HeroBgAnimation />
-          </div>
-
-          {/* 3D shell orbiting the portrait */}
-          <div className="absolute -inset-x-8 -inset-y-20 sm:-inset-y-24 pointer-events-none">
-            <Suspense fallback={null}>
-              <HeroOrb />
-            </Suspense>
-          </div>
+          {!lite && (
+            <>
+              <div className="absolute inset-0 pointer-events-none">
+                <Suspense fallback={null}>
+                  <Stars />
+                </Suspense>
+              </div>
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-70 scale-[0.55] sm:scale-[0.65] md:scale-75">
+                <Suspense fallback={null}>
+                  <HeroBgAnimation />
+                </Suspense>
+              </div>
+              <div className="absolute -inset-x-8 -inset-y-20 sm:-inset-y-24 pointer-events-none">
+                <Suspense fallback={null}>
+                  <HeroOrb />
+                </Suspense>
+              </div>
+            </>
+          )}
 
           {/* Slow rotating ring */}
           <motion.span
@@ -198,7 +205,7 @@ const Hero = () => {
                 rel={external ? "noopener noreferrer" : undefined}
                 whileHover={{ scale: 1.2 }}
                 transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                className="text-white/60 hover:text-white transition-colors duration-300"
+                className="flex h-11 w-11 items-center justify-center text-white/60 hover:text-white transition-colors duration-300"
                 aria-label={label}
               >
                 <Icon />
@@ -208,7 +215,7 @@ const Hero = () => {
         </div>
       </div>
 
-      <div className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 pointer-events-none">
+      <div className="absolute bottom-8 left-1/2 z-10 hidden -translate-x-1/2 pointer-events-none md:block">
         <motion.div
           className="flex flex-col items-center gap-3"
           animate={{ y: [0, 8, 0] }}

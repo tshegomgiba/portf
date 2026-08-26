@@ -1,78 +1,39 @@
-import { useEffect, useState } from 'react';
+import { useMemo } from "react";
 
 const SnowEffect = () => {
-  const [snowflakes, setSnowflakes] = useState([]);
-
-  useEffect(() => {
-    const createFlake = (id) => ({
+  const flakes = useMemo(() => {
+    if (typeof window === "undefined") return [];
+    const phone = window.innerWidth < 768;
+    const count = phone ? 18 : 56;
+    return Array.from({ length: count }, (_, id) => ({
       id,
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * -window.innerHeight,
-      size: Math.random() * 4 + 2,
-      speed: Math.random() * 2 + 0.5,
-      opacity: Math.random() * 0.6 + 0.35,
-      drift: Math.random() * 2 - 1,
-    });
-
-    const initialSnowflakes = [];
-    for (let i = 0; i < 100; i++) {
-      initialSnowflakes.push({
-        ...createFlake(i),
-        y: Math.random() * window.innerHeight,
-      });
-    }
-    setSnowflakes(initialSnowflakes);
-
-    const animateSnow = () => {
-      setSnowflakes(prevSnowflakes =>
-        prevSnowflakes.map(snowflake => {
-          let newY = snowflake.y + snowflake.speed;
-          let newX = snowflake.x + snowflake.drift * 0.3;
-
-          if (newY > window.innerHeight + 10) {
-            return {
-              ...snowflake,
-              y: -10,
-              x: Math.random() * window.innerWidth,
-            };
-          }
-
-          if (newX < -10) newX = window.innerWidth + 10;
-          if (newX > window.innerWidth + 10) newX = -10;
-
-          return {
-            ...snowflake,
-            y: newY,
-            x: newX,
-          };
-        })
-      );
-    };
-
-    const interval = setInterval(animateSnow, 50);
-    return () => clearInterval(interval);
+      left: `${Math.random() * 100}%`,
+      size: phone ? 2 + Math.random() * 2.4 : 2 + Math.random() * 4,
+      duration: 11 + Math.random() * 14,
+      delay: -(Math.random() * 16),
+      opacity: 0.28 + Math.random() * 0.4,
+      drift: `${(Math.random() * 48 - 24).toFixed(1)}px`,
+    }));
   }, []);
 
   return (
-    <>
-      <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
-        {snowflakes.map(snowflake => (
-          <div
-            key={snowflake.id}
-            className="absolute rounded-full bg-white"
-            style={{
-              left: `${snowflake.x}px`,
-              top: `${snowflake.y}px`,
-              width: `${snowflake.size}px`,
-              height: `${snowflake.size}px`,
-              opacity: snowflake.opacity,
-              boxShadow: '0 0 5px rgba(47, 126, 168, 0.55), 0 0 3px rgba(255, 255, 255, 0.9)',
-              filter: 'blur(0.4px)',
-            }}
-          />
-        ))}
-      </div>
-    </>
+    <div className="snow-layer" aria-hidden="true">
+      {flakes.map((flake) => (
+        <span
+          key={flake.id}
+          className="snow-flake"
+          style={{
+            left: flake.left,
+            width: flake.size,
+            height: flake.size,
+            opacity: flake.opacity,
+            "--drift": flake.drift,
+            animationDuration: `${flake.duration}s`,
+            animationDelay: `${flake.delay}s`,
+          }}
+        />
+      ))}
+    </div>
   );
 };
 

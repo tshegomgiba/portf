@@ -26,17 +26,16 @@ const CosmicContactForm = () => {
   });
   const [status, setStatus] = useState({ state: "idle", message: "" });
 
-  const stars = useMemo(
-    () =>
-      Array.from({ length: 50 }, (_, i) => ({
-        id: i,
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        size: Math.random() * 2.5 + 1,
-        delay: Math.random() * 2,
-      })),
-    []
-  );
+  const stars = useMemo(() => {
+    const count = typeof window !== "undefined" && window.innerWidth < 768 ? 16 : 50;
+    return Array.from({ length: count }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 2.5 + 1,
+      delay: Math.random() * 2,
+    }));
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -106,7 +105,7 @@ const CosmicContactForm = () => {
   return (
     <section
       id="contact"
-      className="relative pt-16 pb-24 md:py-28 px-5 md:px-6 lg:px-10 overflow-hidden bg-[#16232f]"
+      className="relative pt-16 pb-32 md:py-28 px-5 md:px-6 lg:px-10 overflow-hidden bg-[#16232f]"
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(126,200,227,0.15),transparent_50%)] pointer-events-none" />
 
@@ -172,7 +171,7 @@ const CosmicContactForm = () => {
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="Jane Doe"
-                className="w-full bg-transparent border-b border-white/25 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#7ec8e3] transition-colors"
+                className="w-full bg-transparent border-b border-white/25 py-3 text-base text-white placeholder-white/30 focus:outline-none focus:border-[#7ec8e3] transition-colors"
                 required
               />
             </div>
@@ -187,7 +186,7 @@ const CosmicContactForm = () => {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="jane@example.com"
-                className="w-full bg-transparent border-b border-white/25 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#7ec8e3] transition-colors"
+                className="w-full bg-transparent border-b border-white/25 py-3 text-base text-white placeholder-white/30 focus:outline-none focus:border-[#7ec8e3] transition-colors"
                 required
               />
             </div>
@@ -202,7 +201,7 @@ const CosmicContactForm = () => {
                 onChange={handleChange}
                 placeholder="Tell me about your project..."
                 rows={4}
-                className="w-full bg-transparent border-b border-white/25 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#7ec8e3] transition-colors resize-none"
+                className="w-full bg-transparent border-b border-white/25 py-3 text-base text-white placeholder-white/30 focus:outline-none focus:border-[#7ec8e3] transition-colors resize-none"
                 required
               />
             </div>
@@ -218,6 +217,7 @@ const CosmicContactForm = () => {
 
             <motion.button
               type="submit"
+              data-pixel="hire"
               disabled={status.state === "sending"}
               className="inline-flex items-center gap-2 bg-white text-[#16232f] font-semibold py-3.5 px-8 rounded-full hover:bg-[#7ec8e3] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               whileHover={status.state === "sending" ? {} : { scale: 1.03 }}

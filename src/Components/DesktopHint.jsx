@@ -39,7 +39,7 @@ const DesktopHint = () => {
       }
 
       setShow(true);
-      timers.current.push(setTimeout(() => setShow(false), 12000));
+      timers.current.push(setTimeout(() => setShow(false), 7000));
     };
 
     // Wait for the loading screen to clear rather than guessing at a delay.
@@ -92,10 +92,8 @@ const DesktopHint = () => {
                 Best on desktop
               </p>
               <p className="mt-1 text-[12px] leading-snug text-white/75">
-                There is a 3D companion that works its way through the site
-                alongside you. It only runs on a larger screen, so open this on
-                a desktop for the full thing. And do not poke it. It will get
-                angry.
+                Pixel and Bit still come along. The 3D tour is waiting on a
+                larger screen.
               </p>
             </div>
 

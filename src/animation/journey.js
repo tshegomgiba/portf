@@ -14,7 +14,7 @@ export const SECTIONS = [
     tone: 1,
     lines: [
       "Hi, I'm Pixel. I'll ride along.",
-      "Keep scrolling and I'll follow you down.",
+      "Hi, I'm Bit. I'll walk you through each section.",
     ],
   },
   {

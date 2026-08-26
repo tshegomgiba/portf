@@ -2,6 +2,7 @@ import React, { forwardRef, useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { techStack } from "../data/stack";
+import { projects } from "../data/projects";
 import { iconTile } from "./iconTile";
 import { makeScreen } from "./laptopScreen";
 
@@ -238,8 +239,8 @@ Reading.displayName = "Reading";
 
 /* ------------------------------------------------------------------ *
  * Experience: the desk. A laptop it types on, with the screen thrown up
- * as a hologram above the lid so it stays readable from the front. That
- * screen writes code, then opens the site it just built.
+ * as a hologram above the lid so it stays readable from the front.
+ * The live project shots belong on Work, not here.
  * ------------------------------------------------------------------ */
 
 const Desk = forwardRef(({ energy }, ref) => {
@@ -275,8 +276,7 @@ const Desk = forwardRef(({ energy }, ref) => {
 
     if (glow.current) glow.current.intensity = open * (1.5 + Math.sin(t * 7) * 0.12);
 
-    // Writes while it is actually sitting there, pauses when it looks away,
-    // then opens the site it just built.
+    // Writes while it is actually sitting there, pauses when it looks away.
     screen.advance(delta, energy?.current ?? 1);
 
     chips.current.forEach((chip, i) => {
@@ -547,6 +547,18 @@ const Gallery = forwardRef((_, ref) => {
   const minis = useRef([]);
   const burst = useRef();
 
+  const maps = useMemo(() => {
+    const loader = new THREE.TextureLoader();
+    return projects.map(({ image }) => {
+      const map = loader.load(image);
+      map.colorSpace = THREE.SRGBColorSpace;
+      map.minFilter = THREE.LinearFilter;
+      return map;
+    });
+  }, []);
+
+  useEffect(() => () => maps.forEach((map) => map.dispose()), [maps]);
+
   useFrame((state) => {
     const group = ref.current;
     if (!group) return;
@@ -585,6 +597,9 @@ const Gallery = forwardRef((_, ref) => {
     fade(group, activity);
   });
 
+  const featured = maps[0];
+  const extras = maps.slice(1);
+
   return (
     <group ref={ref} visible={false}>
       {/* Held at chest height so it does not cover the companion's head */}
@@ -603,9 +618,18 @@ const Gallery = forwardRef((_, ref) => {
             <meshBasicMaterial color={INK} transparent opacity={0} depthWrite={false} toneMapped={false} />
           </mesh>
         ))}
-        <group position={[0, -0.06, 0.014]}>
-          <Bars rows={4} width={0.92} gap={0.13} />
-        </group>
+        {featured && (
+          <mesh position={[0, -0.06, 0.016]} userData={{ o: 0.95 }}>
+            <planeGeometry args={[1.22, 0.7]} />
+            <meshBasicMaterial
+              map={featured}
+              transparent
+              opacity={0}
+              depthWrite={false}
+              toneMapped={false}
+            />
+          </mesh>
+        )}
         <mesh position={[0, 0, -0.014]} userData={{ o: 0.5 }}>
           <planeGeometry args={[1.42, 0.99]} />
           <meshBasicMaterial
@@ -619,13 +643,22 @@ const Gallery = forwardRef((_, ref) => {
         </mesh>
       </group>
 
-      {[0, 1].map((i) => (
-        <group key={i} ref={(el) => (minis.current[i] = el)}>
-          <mesh userData={{ o: 0.18 }}>
-            <boxGeometry args={[0.46, 0.32, 0.014]} />
-            <meshBasicMaterial color={PALE} transparent opacity={0} depthWrite={false} toneMapped={false} />
+      {extras.map((map, i) => (
+        <group key={projects[i + 1]?.title ?? i} ref={(el) => (minis.current[i] = el)}>
+          <mesh userData={{ o: 0.22 }}>
+            <boxGeometry args={[0.5, 0.36, 0.014]} />
+            <meshBasicMaterial color={INK} transparent opacity={0} depthWrite={false} toneMapped={false} />
           </mesh>
-          <Bars rows={2} width={0.3} gap={0.08} />
+          <mesh position={[0, 0, 0.01]} userData={{ o: 0.95 }}>
+            <planeGeometry args={[0.46, 0.32]} />
+            <meshBasicMaterial
+              map={map}
+              transparent
+              opacity={0}
+              depthWrite={false}
+              toneMapped={false}
+            />
+          </mesh>
         </group>
       ))}
 

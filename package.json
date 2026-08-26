@@ -15,6 +15,7 @@
     "@react-three/fiber": "^8.17.12",
     "animejs": "^3.2.2",
     "aos": "^2.3.4",
+    "edge-tts-universal": "^1.4.0",
     "emailjs-com": "^3.2.0",
     "framer-motion": "^11.18.1",
     "icons": "^1.0.0",

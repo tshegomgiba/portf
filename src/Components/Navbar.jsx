@@ -101,7 +101,7 @@ const Navbar = () => {
       className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-500 ${
         scrolled || open
           ? "bg-[#dfe8f1]/85 backdrop-blur-md border-b border-[#16232f]/10 py-3"
-          : "bg-transparent py-6"
+          : "bg-transparent py-4 md:py-6"
       }`}
     >
       <nav className="max-w-6xl mx-auto px-6 lg:px-10 flex items-center justify-between">
@@ -159,9 +159,10 @@ const Navbar = () => {
           <motion.a
             href="#contact"
             onClick={(event) => go(event, "#contact")}
+            data-pixel="hire"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.96 }}
-            className={`text-xs font-semibold px-5 py-2.5 rounded-full transition-colors ${
+            className={`text-xs font-semibold px-4 py-2.5 md:px-5 rounded-full transition-colors ${
               scrolled || open
                 ? "bg-[#16232f] text-white hover:bg-[#2f7ea8]"
                 : "bg-white/15 text-white border border-white/30 backdrop-blur-sm hover:bg-white/25"
@@ -175,7 +176,7 @@ const Navbar = () => {
             onClick={() => setOpen((value) => !value)}
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
-            className={`md:hidden p-2 -mr-2 transition-colors ${
+            className={`md:hidden flex h-11 w-11 items-center justify-center -mr-1 transition-colors ${
               scrolled || open ? "text-[#16232f]" : "text-white"
             }`}
           >
