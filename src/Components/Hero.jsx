@@ -208,17 +208,39 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* Scroll cue */}
-      <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2"
-        animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-      >
-        <span className="text-[10px] tracking-[0.3em] uppercase text-white/50 font-display">
-          Scroll
-        </span>
-        <span className="w-px h-10 bg-gradient-to-b from-white/50 to-transparent" />
-      </motion.div>
+      <div className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 pointer-events-none">
+        <motion.div
+          className="flex flex-col items-center gap-3"
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <span className="relative h-11 w-7 rounded-full border border-white/40">
+            <span className="absolute inset-x-0 top-2 flex justify-center">
+              <motion.span
+                className="h-1.5 w-1.5 rounded-full bg-[#7ec8e3] shadow-[0_0_8px_rgba(126,200,227,0.9)]"
+                animate={{ y: [0, 14, 0], opacity: [1, 0.35, 1] }}
+                transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+              />
+            </span>
+          </span>
+          <svg
+            width="12"
+            height="8"
+            viewBox="0 0 12 8"
+            fill="none"
+            aria-hidden="true"
+            className="text-white/45"
+          >
+            <path
+              d="M1 1.5L6 6.5L11 1.5"
+              stroke="currentColor"
+              strokeWidth="1.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </motion.div>
+      </div>
     </motion.div>
   );
 };
