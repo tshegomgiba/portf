@@ -1,31 +1,53 @@
-import React, { useEffect } from 'react';
-import { FaFacebook, FaTwitter } from "react-icons/fa";
-import { VscGithub } from "react-icons/vsc";
+import React, { useEffect, useMemo, lazy, Suspense } from 'react';
+import { FaGithub, FaLinkedin, FaEnvelope } from "react-icons/fa";
+import { FiDownload } from "react-icons/fi";
 import Aos from 'aos';
 import 'aos/dist/aos.css';
-import img1 from '../images/Untitled Project.jpg';
+import img1 from '../images/portrait.webp';
+import heroBg from '../images/pexels-stywo-1054218.webp';
 import HeroBgAnimation from '../Hero/HeroBgAnimation';
 import { motion } from 'framer-motion';
 import Stars from "../animation/stars";
 import { Typewriter } from "react-simple-typewriter";
+import { profile, socialLinks } from "../data/profile";
+
+const SOCIAL_ICONS = {
+  github: FaGithub,
+  linkedin: FaLinkedin,
+  email: FaEnvelope,
+};
+
+// Three.js is a heavy bundle, so it loads after the hero paints.
+const HeroOrb = lazy(() => import("../animation/HeroOrb"));
 
 const Hero = () => {
+  const twinkleStars = useMemo(
+    () =>
+      Array.from({ length: 80 }, (_, i) => ({
+        id: i,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size: Math.random() * 2.5 + 1,
+        delay: Math.random() * 2,
+      })),
+    []
+  );
+
   useEffect(() => {
-    Aos.init();
+    Aos.init({ duration: 1000, once: true });
   }, []);
 
   return (
-    <motion.div className="relative h-[100vh] bg-gradient-to-b from-black via-gray-900 to-black">
+    <motion.div id="top" className="relative min-h-screen overflow-hidden bg-[#16232f]">
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${heroBg})` }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0d1720]/45 via-[#16232f]/25 to-[#16232f]/70" />
 
-      {/* Stars background */}
+      {/* Twinkling stars */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {Array.from({ length: 120 }, (_, i) => ({
-          id: i,
-          x: Math.random() * 100,
-          y: Math.random() * 100,
-          size: Math.random() * 3 + 1,
-          delay: Math.random() * 2,
-        })).map((star) => (
+        {twinkleStars.map((star) => (
           <motion.div
             key={star.id}
             className="absolute bg-white rounded-full shadow-lg"
@@ -49,79 +71,154 @@ const Hero = () => {
         ))}
       </div>
 
-      {/* Subtle nebula glows */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-black/20 via-purple-900/10 to-black/20" />
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-700/20 rounded-full blur-3xl" />
+      <div className="absolute inset-0 grain opacity-[0.35] pointer-events-none" />
+      {/* Centre scrim keeps the headline readable over the peaks */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(13,23,32,0.4)_0%,rgba(13,23,32,0.15)_45%,transparent_75%)] pointer-events-none" />
 
-      {/* Main content */}
-      <div className="relative z-10 text-center flex flex-col items-center justify-center h-full px-6 md:px-12 lg:px-20">
-        <div className="relative flex justify-center w-full lg:w-1/2" data-aos="fade-up">
-          <Stars />
-          <HeroBgAnimation />
-          <img
-            className="absolute top-44 w-64 sm:w-80 md:w-[24rem] lg:w-[28rem] rounded-full shadow-xl border-8 border-dashed border-purple-500/50 transition-transform duration-300 transform hover:scale-105"
-            src={img1}
-            alt="About Me"
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 md:px-12 lg:px-20 pt-28 pb-20 text-center">
+        {/* Portrait composition */}
+        <div
+          className="relative flex items-center justify-center w-full max-w-lg h-56 sm:h-64 md:h-72"
+          data-aos="fade-up"
+        >
+          {/* Decorative animation layers sit behind the portrait */}
+          <div className="absolute inset-0 pointer-events-none">
+            <Stars />
+          </div>
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-70 scale-[0.55] sm:scale-[0.65] md:scale-75">
+            <HeroBgAnimation />
+          </div>
+
+          {/* 3D shell orbiting the portrait */}
+          <div className="absolute -inset-x-8 -inset-y-20 sm:-inset-y-24 pointer-events-none">
+            <Suspense fallback={null}>
+              <HeroOrb />
+            </Suspense>
+          </div>
+
+          {/* Slow rotating ring */}
+          <motion.span
+            className="absolute rounded-full border border-dashed border-[#7ec8e3]/40 w-44 h-44 sm:w-52 sm:h-52 md:w-60 md:h-60"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
           />
+
+          <div className="relative z-10 group">
+            <span className="absolute -inset-2 rounded-full bg-gradient-to-br from-[#7ec8e3]/40 via-transparent to-white/20 blur-md" />
+            <img
+              className="relative w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 rounded-full object-cover shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] ring-2 ring-white/40 transition-transform duration-500 group-hover:scale-105"
+              src={img1}
+              alt="Tshegofatso Mgiba"
+            />
+          </div>
         </div>
 
-        <h1
-          className="text-5xl text-white md:text-4xl lg:text-5xl font-bold mt-8"
-          data-aos="zoom-in"
-        >
-          Hi, I am{" "}
-          <span className="bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400 bg-clip-text text-transparent">
-            <Typewriter
-              words={["Tshegofatso Mgiba", "Full Stack Developer"]}
-              loop={0} // infinite loop
-              cursor
-              cursorStyle="|"
-              typeSpeed={150}   // slower typing
-              deleteSpeed={80}  // smoother deleting
-              delaySpeed={2000} // pause before swapping
-            />
-          </span>
-        </h1>
-
-        <p
-          className="mt-6 text-md md:text-base lg:text-lg text-gray-300 max-w-4xl text-justify text-normal leading-relaxed"
-          data-aos="fade-left"
-        >
-     I’m a passionate Full Stack Developer skilled in HTML, CSS, JavaScript, and React, with a strong focus on building responsive, user-friendly web applications. I enjoy transforming designs into functional and interactive experiences, and I continuously refine my skills to deliver modern, high-quality solutions. I also bring a creative touch to projects, incorporating smooth animations, video backgrounds, and polished UI interactions to make every application both functional and visually engaging.
+        <p className="eyebrow mt-8 text-[#7ec8e3]" data-aos="fade-up">
+          Full Stack Developer
         </p>
 
-        {/* Socials */}
-        <div
-          className="flex justify-center gap-6 mt-10 text-4xl md:text-3xl text-white"
-          data-aos="fade-down"
+        <h1
+          className="display-title text-3xl sm:text-4xl md:text-5xl mt-3 text-white [text-shadow:0_4px_30px_rgba(0,0,0,0.55)]"
+          data-aos="zoom-in"
         >
+          Tshegofatso <span className="text-[#b8e0f0]">Mgiba</span>
+        </h1>
+
+        <div className="mt-5 flex items-center gap-4 w-full max-w-md" data-aos="fade-up">
+          <span className="h-px flex-1 bg-white/25" />
+          <p className="font-display text-sm md:text-base text-[#b8e0f0] whitespace-nowrap">
+            <Typewriter
+              words={["Tshegofatso Mgiba", "Full Stack Developer"]}
+              loop={0}
+              cursor
+              cursorStyle="|"
+              typeSpeed={150}
+              deleteSpeed={80}
+              delaySpeed={2000}
+            />
+          </p>
+          <span className="h-px flex-1 bg-white/25" />
+        </div>
+
+        <p
+          className="mt-6 text-sm md:text-base text-white/70 max-w-2xl leading-relaxed font-light"
+          data-aos="fade-left"
+        >
+          Detail-oriented Software Developer building modern, responsive
+          websites and web applications with React, TypeScript, and Tailwind
+          CSS, plus WordPress development and CRM automation.
+        </p>
+
+        <p className="mt-4 text-xs tracking-[0.2em] uppercase text-white/40 font-display" data-aos="fade-up">
+          Pretoria &amp; Johannesburg · South Africa
+        </p>
+
+        <div className="mt-8 flex flex-col sm:flex-row items-center gap-4" data-aos="fade-up">
           <motion.a
-            href="#"
-            whileHover={{ scale: 1.2 }}
-            transition={{ type: "spring", stiffness: 400, damping: 10 }}
-            className="text-purple-400 hover:text-purple-300 transition-colors duration-300"
+            href="#projects"
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+            className="px-7 py-3 rounded-full bg-white text-[#16232f] text-sm font-semibold hover:bg-[#b8e0f0] transition-colors"
           >
-            <FaFacebook />
+            View my work
           </motion.a>
           <motion.a
-            href="#"
-            whileHover={{ scale: 1.2 }}
-            transition={{ type: "spring", stiffness: 400, damping: 10 }}
-            className="text-cyan-400 hover:text-cyan-300 transition-colors duration-300"
+            href="#contact"
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+            className="px-7 py-3 rounded-full border border-white/30 text-white text-sm font-semibold hover:bg-white/10 transition-colors backdrop-blur-sm"
           >
-            <FaTwitter />
+            Get in touch
           </motion.a>
           <motion.a
-            href="#"
-            whileHover={{ scale: 1.2 }}
-            transition={{ type: "spring", stiffness: 400, damping: 10 }}
-            className="text-pink-400 hover:text-pink-300 transition-colors duration-300"
+            href={profile.cv}
+            download
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+            className="inline-flex items-center gap-2 px-5 py-3 text-sm font-semibold text-white/75 hover:text-white transition-colors"
           >
-            <VscGithub />
+            <FiDownload className="w-4 h-4" />
+            Download CV
           </motion.a>
         </div>
+
+        <div
+          className="flex justify-center gap-7 mt-8 text-2xl"
+          data-aos="fade-down"
+        >
+          {socialLinks.map(({ key, label, href }) => {
+            const Icon = SOCIAL_ICONS[key];
+            const external = href.startsWith("http");
+
+            return (
+              <motion.a
+                key={key}
+                href={href}
+                target={external ? "_blank" : undefined}
+                rel={external ? "noopener noreferrer" : undefined}
+                whileHover={{ scale: 1.2 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                className="text-white/60 hover:text-white transition-colors duration-300"
+                aria-label={label}
+              >
+                <Icon />
+              </motion.a>
+            );
+          })}
+        </div>
       </div>
+
+      {/* Scroll cue */}
+      <motion.div
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2"
+        animate={{ y: [0, 10, 0] }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <span className="text-[10px] tracking-[0.3em] uppercase text-white/50 font-display">
+          Scroll
+        </span>
+        <span className="w-px h-10 bg-gradient-to-b from-white/50 to-transparent" />
+      </motion.div>
     </motion.div>
   );
 };

@@ -27,7 +27,7 @@ const Stars = (props) => {
       <Points ref={ref} positions={sphere} stride={3} frustumCulled {...props}>
         <PointMaterial
           transparent
-          color="#f272c8"
+          color="#e0f2fe"
           size={0.002}
           sizeAttenuation={true}
           depthWrite={false}
@@ -40,7 +40,10 @@ const Stars = (props) => {
 const StyledStarsCanvas = () => {
   return (
     <StyledCanvasWrapper>
-      <Canvas camera={{ position: [0, 0, 1] }}>
+      <Canvas
+        camera={{ position: [0, 0, 1] }}
+        style={{ pointerEvents: "none" }}
+      >
         <Suspense fallback={null}>
           <Stars />
         </Suspense>

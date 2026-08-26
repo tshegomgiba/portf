@@ -1,7 +1,10 @@
 import React, { useEffect } from "react";
 import Aos from "aos";
 import "aos/dist/aos.css";
+import { motion } from "framer-motion";
 import { Code, Palette, Smartphone, Server } from "lucide-react";
+import CountUp from "./CountUp";
+import { stats } from "../data/stats";
 
 const About = () => {
   useEffect(() => {
@@ -15,53 +18,122 @@ const About = () => {
     { icon: Smartphone, name: "Mobile Development", level: 75 },
   ];
 
+  const focus = [
+    "WordPress development",
+    "CRM automation",
+    "Responsive web apps",
+    "UI/UX & wireframing",
+    "SEO basics",
+    "Agile / Scrum",
+  ];
+
   return (
-    <section className="relative bg-[#0f0f1a] py-20 overflow-hidden">
-      {/* Glowing nebula shapes */}
-      <div className="absolute top-10 left-20 w-72 h-72 bg-purple-600/30 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-20 right-32 w-96 h-96 bg-pink-600/20 rounded-full blur-3xl"></div>
-      <div className="absolute top-1/3 left-1/3 w-72 h-72 bg-cyan-500/20 rounded-full blur-3xl"></div>
+    <section
+      id="about"
+      className="relative py-28 overflow-hidden bg-[#dfe8f1]"
+    >
+      <div className="absolute inset-0 grain opacity-60 pointer-events-none" />
+      <div className="absolute -top-32 -left-32 w-[30rem] h-[30rem] rounded-full bg-[#7ec8e3]/25 blur-3xl pointer-events-none" />
 
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/40"></div>
+      <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-10">
+        <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-16 items-start">
+          <div data-aos="fade-right">
+            <p className="eyebrow mb-5">01 / About</p>
+            <h2 className="display-title text-4xl md:text-6xl mb-8">
+              Code with
+              <br />
+              <span className="text-[#2f7ea8]">intent.</span>
+            </h2>
+            <div className="rule mb-8" />
+            <p className="text-[#4a6076] leading-relaxed text-lg font-light">
+              Detail-oriented Software Developer with a Diploma in Information
+              Technology (Software Development) and hands-on experience in
+              WordPress development, web applications, CRM automation, and
+              responsive website development.
+            </p>
+            <p className="text-[#4a6076] leading-relaxed mt-4 font-light">
+              I build and maintain modern websites with React, TypeScript, and
+              Tailwind CSS, working comfortably on my own or directly with
+              clients, with a strong focus on performance, usability, and
+              problem-solving. Based in Pretoria &amp; Johannesburg.
+            </p>
 
-      <div className="max-w-6xl mx-auto relative z-10 px-6 lg:px-12 grid md:grid-cols-2 gap-12 items-center">
-        {/* Left text */}
-        <div data-aos="fade-right">
-          <h2 className="text-5xl text-center md:text-6xl font-bold bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400 bg-clip-text text-transparent mb-6">
-            MY SKILLS
-          </h2>
-          <p className="text-gray-300 leading-relaxed text-lg">
-            I specialize in crafting responsive web applications with modern UI
-            design. From building clean frontends to managing backend logic,
-            I’m passionate about delivering seamless user experiences and
-            high-quality code.
-          </p>
-        </div>
+            <div className="flex flex-wrap gap-2 mt-8">
+              {focus.map((item, i) => (
+                <motion.span
+                  key={item}
+                  className="text-xs text-[#4a6076] border border-[#16232f]/15 rounded-full px-3 py-1.5"
+                  initial={{ opacity: 0, scale: 0.85 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.35, delay: i * 0.06 }}
+                >
+                  {item}
+                </motion.span>
+              ))}
+            </div>
 
-        {/* Right skills */}
-        <div className="space-y-6" data-aos="fade-left">
-          {skills.map((skill, index) => {
-            const Icon = skill.icon;
-            return (
-              <div
-                key={index}
-                className="p-5 rounded-xl bg-[#1b1b2f]/60 backdrop-blur-md border border-purple-500/20 shadow-lg hover:shadow-purple-500/30 transition-shadow duration-300"
-              >
-                <div className="flex items-center mb-3">
-                  <Icon className="w-6 h-6 text-purple-400 mr-3" />
-                  <span className="text-slate-100 font-medium text-lg">{skill.name}</span>
-                  <span className="ml-auto text-slate-300">{skill.level}%</span>
-                </div>
-                <div className="w-full bg-slate-700/40 rounded-full h-2">
-                  <div
-                    className="bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-400 h-2 rounded-full shadow-lg"
-                    style={{ width: `${skill.level}%` }}
-                  ></div>
-                </div>
-              </div>
-            );
-          })}
+            <div className="grid grid-cols-3 gap-4 mt-12">
+              {stats.map((stat, i) => (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                >
+                  <p className="display-title text-3xl md:text-4xl text-[#16232f]">
+                    <CountUp to={stat.value} delay={i * 0.12} />
+                  </p>
+                  <p className="text-xs text-[#4a6076] mt-1 tracking-wide">
+                    {stat.label}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          <div data-aos="fade-left">
+            <p className="eyebrow mb-6 text-[#4a6076]">Capabilities</p>
+            <div className="space-y-3">
+              {skills.map((skill, index) => {
+                const Icon = skill.icon;
+                return (
+                  <motion.div
+                    key={index}
+                    className="ink-card rounded-2xl p-5"
+                    whileHover={{ y: -4, scale: 1.01 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  >
+                    <div className="flex items-center mb-4">
+                      <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#16232f] text-white mr-4">
+                        <Icon className="w-4 h-4" />
+                      </span>
+                      <span className="text-[#16232f] font-medium">
+                        {skill.name}
+                      </span>
+                      <span className="ml-auto font-display text-sm font-bold text-[#2f7ea8]">
+                        {skill.level}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-[#16232f]/10 rounded-full h-1.5 overflow-hidden">
+                      <motion.div
+                        className="bg-gradient-to-r from-[#2f7ea8] to-[#7ec8e3] h-1.5 rounded-full"
+                        initial={{ width: 0 }}
+                        whileInView={{ width: `${skill.level}%` }}
+                        viewport={{ once: true }}
+                        transition={{
+                          duration: 1,
+                          delay: 0.2 + index * 0.1,
+                          ease: "easeOut",
+                        }}
+                      />
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
     </section>

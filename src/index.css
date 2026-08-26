@@ -2,24 +2,357 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --paper: #dfe8f1;
+  --paper-2: #cfdcea;
+  --ink: #16232f;
+  --ink-soft: #4a6076;
+  --line: rgba(22, 35, 47, 0.14);
+  --glacier: #2f7ea8;
+  /*
+   * How far a section is held while the next one climbs over it. Exactly one
+   * screen, so the cover completes at the moment the hold runs out. `svh` is
+   * the height with the browser chrome showing, which is the one measurement
+   * on a phone that does not change as you scroll, so the page never reflows
+   * mid gesture.
+   */
+  --cover: 100vh;
+  --cover: 100svh;
+}
 
+html {
+  scroll-behavior: smooth;
+}
 
+/*
+ * Stacked sections.
+ *
+ * A panel holds against the bottom of the screen once you have scrolled to the
+ * end of it, and the section after it rises up and covers it. Scrolling back up
+ * plays the same thing in reverse.
+ *
+ * The spacer under each panel is what gives it room to hold, and the next slot
+ * is pulled up by the same amount, so the following section starts climbing at
+ * the moment the current one stops. The two cancel out and the document is no
+ * taller than it would otherwise be.
+ *
+ * Sticky does all of the work. There is no scroll listener and nothing being
+ * driven from JavaScript, so it cannot fall behind the finger on touch.
+ */
+.stack-slot {
+  position: relative;
+}
+
+.stack-panel {
+  position: sticky;
+  bottom: 0;
+  /* The z-index is set per slot in StackSection, ascending. Document order
+     alone would usually be enough, but only until one of these sections grows
+     a stacking context of its own. */
+}
+
+.stack-spacer {
+  height: var(--cover);
+  pointer-events: none;
+}
+
+.stack-slot + .stack-slot {
+  margin-top: calc(var(--cover) * -1);
+}
+
+/* A panel shorter than the screen would not fill it while being held, leaving
+   the page background showing above it as the next one climbs. */
+.stack-panel > * {
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+body {
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: "Outfit", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgba(47, 126, 168, 0.25);
+}
+
+/* Set once the custom cursor takes over, and only on pointer devices. */
+.cursor-hidden,
+.cursor-hidden * {
+  cursor: none !important;
+}
+
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 70;
+  pointer-events: none;
+  border-radius: 999px;
+  will-change: transform;
+}
+
+.cursor-dot {
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  background: #ffffff;
+  box-shadow: 0 0 10px rgba(126, 200, 227, 0.9);
+}
+
+.cursor-ring {
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  border: 1.5px solid rgba(126, 200, 227, 0.85);
+  background: rgba(126, 200, 227, 0.08);
+  backdrop-filter: blur(1px);
+  transition: width 0.25s ease, height 0.25s ease, margin 0.25s ease,
+    border-radius 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+}
+
+.cursor-ring.is-link {
+  width: 56px;
+  height: 56px;
+  margin: -28px 0 0 -28px;
+  background: rgba(126, 200, 227, 0.18);
+  border-color: rgba(255, 255, 255, 0.9);
+}
+
+/* Set while the cursor is over the companion, which lives in a canvas that
+   ignores pointer events and so cannot be hovered the usual way. */
+.cursor-ring.is-poke {
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
+  background: rgba(255, 138, 106, 0.16);
+  border-color: rgba(255, 138, 106, 0.9);
+}
+
+.cursor-ring.is-text {
+  width: 3px;
+  height: 26px;
+  margin: -13px 0 0 -1.5px;
+  border-radius: 2px;
+  background: rgba(126, 200, 227, 0.85);
+  border-color: transparent;
+}
+
+/*
+ * The flat companion sprite, used on the loading screen and on phones where a
+ * WebGL canvas would be too much. Each limb carries its own pivot inside the
+ * keyframe, which keeps the rotation honest without depending on how a browser
+ * resolves transform-origin inside SVG. The resting transforms sit on the limb
+ * classes so the pose still holds when no animation is running.
+ */
+@keyframes bot-idle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1px); }
+}
+
+@keyframes bot-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1.5px); }
+}
+
+@keyframes bot-leg-front {
+  0%, 100% { transform: translate(17.2px, 36.5px) rotate(24deg); }
+  50% { transform: translate(17.2px, 36.5px) rotate(-24deg); }
+}
+
+@keyframes bot-leg-back {
+  0%, 100% { transform: translate(22.8px, 36.5px) rotate(-24deg); }
+  50% { transform: translate(22.8px, 36.5px) rotate(24deg); }
+}
+
+@keyframes bot-arm-far {
+  0%, 100% { transform: translate(14.4px, 26px) rotate(-18deg); }
+  50% { transform: translate(14.4px, 26px) rotate(18deg); }
+}
+
+@keyframes bot-arm-near {
+  0%, 100% { transform: translate(25.6px, 26px) rotate(18deg); }
+  50% { transform: translate(25.6px, 26px) rotate(-18deg); }
+}
+
+@keyframes bot-arm-wave {
+  0%, 100% { transform: translate(25.6px, 26px) rotate(-150deg); }
+  50% { transform: translate(25.6px, 26px) rotate(-196deg); }
+}
+
+@keyframes bot-blink {
+  0%, 90%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.12); }
+}
+
+@keyframes bot-glow {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+.bot-leg-front,
+.bot-leg-back,
+.bot-arm-far,
+.bot-arm-near {
+  transform-origin: 0 0;
+}
+
+.bot-leg-front { transform: translate(17.2px, 36.5px); }
+.bot-leg-back { transform: translate(22.8px, 36.5px); }
+.bot-arm-far { transform: translate(14.4px, 26px); }
+.bot-arm-near { transform: translate(25.6px, 26px) rotate(-14deg); }
+
+.bot-blink {
+  transform-origin: 21.6px 15.4px;
+  animation: bot-blink 3.4s ease-in-out infinite;
+}
+
+.bot-glow { animation: bot-glow 1.6s ease-in-out infinite; }
+.bot-sprite { animation: bot-idle 2.6s ease-in-out infinite; }
+
+/* Walking */
+.bot-walk { animation: bot-bob 0.62s ease-in-out infinite; }
+.bot-walk .bot-leg-front { animation: bot-leg-front 0.62s ease-in-out infinite; }
+.bot-walk .bot-leg-back { animation: bot-leg-back 0.62s ease-in-out infinite; }
+.bot-walk .bot-arm-far { animation: bot-arm-far 0.62s ease-in-out infinite; }
+.bot-walk .bot-arm-near { animation: bot-arm-near 0.62s ease-in-out infinite; }
+
+/* Waving wins over the walking swing on the near arm. */
+.bot-wave .bot-arm-near { animation: bot-arm-wave 0.44s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bot-sprite,
+  .bot-walk,
+  .bot-glow,
+  .bot-blink,
+  .bot-walk .bot-leg-front,
+  .bot-walk .bot-leg-back,
+  .bot-walk .bot-arm-far,
+  .bot-walk .bot-arm-near,
+  .bot-wave .bot-arm-near {
+    animation: none;
+  }
+
+  /* No hold means no travel, so the sections simply scroll past each other. */
+  :root {
+    --cover: 0px;
+  }
+}
+
+.font-display {
+  font-family: "Syne", system-ui, sans-serif;
+}
+
+.eyebrow {
+  font-family: "Syne", system-ui, sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--glacier);
+}
+
+.display-title {
+  font-family: "Syne", system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+  color: var(--ink);
+}
+
+.rule {
+  height: 1px;
+  width: 100%;
+  background: var(--line);
+}
+
+.ink-card {
+  background: linear-gradient(
+    155deg,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(207, 220, 234, 0.32) 55%,
+    rgba(178, 199, 219, 0.28) 100%
+  );
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 18px 40px -30px rgba(22, 35, 47, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease,
+    background 0.35s ease;
+}
+
+.ink-card:hover {
+  border-color: rgba(47, 126, 168, 0.4);
+  box-shadow: 0 28px 55px -30px rgba(22, 35, 47, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.frost-tile {
+  background: linear-gradient(
+    155deg,
+    rgba(255, 255, 255, 0.42) 0%,
+    rgba(207, 220, 234, 0.26) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(10px);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.frost-tile:hover {
+  background: linear-gradient(
+    155deg,
+    rgba(255, 255, 255, 0.62) 0%,
+    rgba(207, 220, 234, 0.4) 100%
+  );
+  border-color: rgba(47, 126, 168, 0.35);
+}
+
+.shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 38%,
+    rgba(255, 255, 255, 0.18) 46%,
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0.18) 54%,
+    transparent 62%
+  );
+  transform: translateX(-130%);
+  transition: transform 0.9s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.group:hover .shine::after {
+  transform: translateX(130%);
+}
+
+.grain {
+  background-image:
+    linear-gradient(rgba(22, 35, 47, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(22, 35, 47, 0.045) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
 
 .sphere-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh; /* Fullscreen */
-  background-color: black; /* Dark background for glow */
+  height: 100vh;
+  background-color: var(--paper);
 }
 
 .sphere {
   width: 150px;
   height: 150px;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #00ffff, #0044ff);
-  box-shadow: 0 0 30px #00ffff, 0 0 60px #0044ff, 0 0 90px #00ffff;
-  animation: spin 6s linear infinite, glow 2s ease-in-out infinite alternate;
+  background: radial-gradient(circle at 30% 30%, #b8e0f0, #2f7ea8);
+  box-shadow: 0 12px 40px rgba(47, 126, 168, 0.35);
+  animation: spin 6s linear infinite;
 }
 
 @keyframes spin {
@@ -28,14 +361,5 @@
   }
   to {
     transform: rotateY(360deg) rotateX(360deg);
-  }
-}
-
-@keyframes glow {
-  from {
-    box-shadow: 0 0 30px #00ffff, 0 0 60px #0044ff, 0 0 90px #00ffff;
-  }
-  to {
-    box-shadow: 0 0 50px #00ffff, 0 0 100px #0044ff, 0 0 150px #00ffff;
   }
 }
