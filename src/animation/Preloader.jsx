@@ -28,20 +28,19 @@ const Preloader = () => {
       settled = true;
       setTimeout(() => {
         setDone(true);
-        setTimeout(() => getTalk().open(), 380);
-      }, 620);
+        getTalk().open();
+      }, 420);
     };
 
     frame = requestAnimationFrame(tick);
 
     if (document.readyState === "complete") {
-      setTimeout(finish, 400);
+      setTimeout(finish, 180);
     } else {
       window.addEventListener("load", finish, { once: true });
     }
 
-    // Never trap the reader behind a stalled asset.
-    const failsafe = setTimeout(finish, 4000);
+    const failsafe = setTimeout(finish, 2200);
 
     return () => {
       cancelAnimationFrame(frame);

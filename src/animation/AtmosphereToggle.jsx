@@ -6,6 +6,7 @@ import {
   watchAtmosphere,
 } from "./atmosphere";
 import { cutSpeech, isRepeatOn, toggleRepeat, watchRepeat } from "./voice";
+import { getTalk } from "./dialogue";
 import {
   isAutoScrollOn,
   toggleAutoScroll,
@@ -25,6 +26,7 @@ const AtmosphereToggle = () => {
     const next = toggleAtmosphere();
     setSound(next);
     if (!next) cutSpeech();
+    else getTalk().hearNow();
   };
 
   return (

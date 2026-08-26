@@ -42,6 +42,9 @@
     <script>
       (function () {
         try {
+          if (window.speechSynthesis) window.speechSynthesis.cancel();
+        } catch (e) {}
+        try {
           history.scrollRestoration = "manual";
           var nav = performance.getEntriesByType && performance.getEntriesByType("navigation")[0];
           var reload = nav ? nav.type === "reload" : performance.navigation && performance.navigation.type === 1;

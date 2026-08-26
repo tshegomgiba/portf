@@ -5,6 +5,7 @@
  */
 
 import { hush as hushVoice, speak } from "./voice";
+import { SECTIONS } from "./journey";
 
 const intro = [
   "Hi, I'm Pixel. I'll ride along.",
@@ -209,6 +210,19 @@ const beatsFrom = (lines, tag, { who = "pixel", joke = false, banter = false } =
     };
   });
 
+const pageAt = () => {
+  if (typeof window === "undefined") return "top";
+  const focus = window.scrollY + window.innerHeight * 0.42;
+  let at = "top";
+  SECTIONS.forEach(({ id }) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + window.scrollY;
+    if (focus >= top - 24) at = id;
+  });
+  return at;
+};
+
 const SCRIPT = {
   top: ["intro"],
   about: ["about-0", "creative", "creative-2", "linger:about"],
@@ -237,6 +251,7 @@ class CompanionTalk {
     this.opened = false;
     this.sentHome = false;
     this.reading = "";
+    this.introDone = false;
   }
 
   on(fn) {
@@ -259,9 +274,9 @@ class CompanionTalk {
 
   say(lines, tag, opts = {}) {
     const { key, interrupt = false, ondone } = opts;
+    if (interrupt) this.flush(false);
     if (key && this.played.has(key)) return false;
     if (key) this.played.add(key);
-    if (interrupt) this.flush(false);
     const beats = beatsFrom(lines, tag, opts);
     if (ondone && beats.length) beats[beats.length - 1].ondone = ondone;
     beats.forEach((beat) => this.queue.push(beat));
@@ -327,17 +342,11 @@ class CompanionTalk {
   }
 
   get greeting() {
-    return (
-      this.opened &&
-      !this.played.has("intro") &&
-      (this.dwellSection === "top" || this.dwellSection === "")
-    );
+    return this.opened && !this.introDone;
   }
 
   get starting() {
-    if (!this.opened) return true;
-    if (this.current?.tag === "Intro") return true;
-    return this.queue.some((beat) => beat.tag === "Intro");
+    return this.opened && !this.introDone;
   }
 
   wipe() {
@@ -351,25 +360,35 @@ class CompanionTalk {
     this.turn = "bit";
     this.sentHome = false;
     this.reading = "";
+    this.introDone = false;
     this.opened = false;
   }
 
-  /** The loading screen has lifted. Always the first-visit intro, never a resume. */
+  /** The loading screen has lifted. Start on whatever page the reader is on. */
   open() {
     if (this.opened) return;
     this.wipe();
     this.opened = true;
-    this.arrive("top");
+    const here = pageAt();
+    const index = Math.max(0, SECTIONS.findIndex(({ id }) => id === here));
+    this.lastIndex = index;
+    this.dwellSection = here;
+    if (here !== "top") this.introDone = true;
+    this.arrive(here, here !== "top");
   }
 
   arrive(section, replay = false) {
     if (!this.opened || !section) return;
 
     if (section === "top") {
+      this.introDone = false;
       this.say(intro, "Intro", {
         key: "intro",
         interrupt: true,
         who: ["pixel", "bit", "bit", "pixel"],
+        ondone: () => {
+          this.introDone = true;
+        },
       });
       return;
     }
@@ -380,7 +399,7 @@ class CompanionTalk {
         key: "about-0",
         who: "pixel",
         banter: true,
-        interrupt: replay,
+        interrupt: true,
       });
     }
     if (section === "experience") {
@@ -388,7 +407,7 @@ class CompanionTalk {
         key: "experience-0",
         who: "pixel",
         banter: true,
-        interrupt: replay,
+        interrupt: true,
       });
     }
     if (section === "stack") {
@@ -397,7 +416,7 @@ class CompanionTalk {
         who: "pixel",
         banter: true,
         joke: true,
-        interrupt: replay,
+        interrupt: true,
       });
     }
     if (section === "projects") {
@@ -405,7 +424,7 @@ class CompanionTalk {
         key: "projects-0",
         who: "pixel",
         banter: true,
-        interrupt: replay,
+        interrupt: true,
       });
     }
     if (section === "contact") {
@@ -424,11 +443,11 @@ class CompanionTalk {
   enter(section, index) {
     if (section) this.visited.add(section);
 
-    if (!this.opened) return;
-
-    // Intro owns the first visit. Do not jump to a later page's script
-    // just because the scroll position was restored.
-    if (this.starting && section !== "top") return;
+    if (!this.opened) {
+      this.lastIndex = index;
+      if (section) this.dwellSection = section;
+      return;
+    }
 
     const changed = Boolean(section) && section !== this.dwellSection;
     const goingBack = index < this.lastIndex;
@@ -444,6 +463,8 @@ class CompanionTalk {
     }
 
     if (goingBack || changed) {
+      if (section !== "top") this.introDone = true;
+      this.flush(false);
       this.release(section);
       this.arrive(section, true);
       return;
@@ -547,6 +568,7 @@ class CompanionTalk {
   }
 
   leftContact() {
+    if (this.starting) return;
     if (this.sentHome || this.saidHello || !this.played.has("ending")) return;
     this.say(ghost, "Observing", { key: "ghost", interrupt: true, who: "bit", banter: true, joke: true });
   }
@@ -576,6 +598,19 @@ class CompanionTalk {
   hush() {
     this.reading = "";
     this.flush(false);
+  }
+
+  hearNow() {
+    if (!this.opened) return;
+    this.flush(false);
+    if (!this.introDone) {
+      this.played.delete("intro");
+      this.arrive("top");
+      return;
+    }
+    const section = this.dwellSection || "top";
+    this.release(section);
+    this.arrive(section, true);
   }
 
   dropRead() {
@@ -620,7 +655,9 @@ export const getTalk = () => {
   if (!talk) {
     talk = new CompanionTalk();
     if (typeof window !== "undefined") {
-      window.setTimeout(() => talk.open(), 6000);
+      window.setTimeout(() => {
+        if (talk && !talk.opened) talk.open();
+      }, 2800);
     }
   }
   return talk;

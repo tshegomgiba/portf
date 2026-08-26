@@ -31,6 +31,18 @@ const cutSpeech = () => {
 };
 
 if (typeof window !== "undefined") {
+  const kill = () => {
+    try {
+      window.speechSynthesis.cancel();
+    } catch {
+      /* speech may be missing */
+    }
+  };
+  kill();
+  window.addEventListener("load", kill);
+  window.addEventListener("pageshow", (event) => {
+    if (event.persisted) kill();
+  });
   watchAtmosphere((playing) => {
     muted = !playing;
     if (muted) cutSpeech();
@@ -164,7 +176,7 @@ const finish = (item, token) => {
     if (token !== gen) return;
     busy = false;
     pump();
-  }, 300);
+  }, 70);
 };
 
 const utter = (item, token) => {
@@ -178,7 +190,7 @@ const utter = (item, token) => {
       pending = null;
       if (token !== gen) return;
       finish(item, token);
-    }, Math.min(4200, 650 + item.text.length * 42));
+    }, Math.min(1600, 280 + item.text.length * 22));
     return;
   }
 
