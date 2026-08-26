@@ -54,7 +54,7 @@ const TechSphere = () => {
         ))}
       </div>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-10 py-28">
+      <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-10 py-16 md:py-28">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14">
           <div>
             <motion.p
@@ -89,7 +89,7 @@ const TechSphere = () => {
           </motion.p>
         </div>
 
-        <div className="h-px w-full bg-white/15 mb-12" />
+        <div className="h-px w-full bg-white/15 mb-8 md:mb-12" />
 
         {/* Four across leaves roughly 27px of room inside a tile on a 320px
             phone, which is not enough for a word like PostgreSQL. */}

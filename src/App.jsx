@@ -34,11 +34,13 @@ function App() {
       <ScrollProgress />
       <Navbar />
       <DesktopHint />
-      {PANELS.map((Panel, i) => (
-        <StackSection key={i} index={i} last={i === PANELS.length - 1}>
-          <Panel />
-        </StackSection>
-      ))}
+      <div className="stack-track">
+        {PANELS.map((Panel, i) => (
+          <StackSection key={i} index={i} last={i === PANELS.length - 1}>
+            <Panel />
+          </StackSection>
+        ))}
+      </div>
     </div>
   )
 }

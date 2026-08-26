@@ -94,7 +94,8 @@ const DesktopHint = () => {
               <p className="mt-1 text-[12px] leading-snug text-white/75">
                 There is a 3D companion that works its way through the site
                 alongside you. It only runs on a larger screen, so open this on
-                a desktop for the full thing.
+                a desktop for the full thing. And do not poke it. It will get
+                angry.
               </p>
             </div>
 

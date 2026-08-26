@@ -57,10 +57,12 @@ const CosmicContactForm = () => {
         body: JSON.stringify({
           access_key: ACCESS_KEY,
           subject: `Portfolio message from ${formData.name}`,
-          from_name: "Portfolio site",
+          from_name: "Tshegofatso Mgiba portfolio",
           name: formData.name,
           email: formData.email,
           message: formData.message,
+          // Lets the inbox tell localhost from the hosted site.
+          page: window.location.href,
           botcheck: e.target.botcheck?.checked ? "true" : "",
         }),
       });
@@ -99,7 +101,7 @@ const CosmicContactForm = () => {
   return (
     <section
       id="contact"
-      className="relative py-28 px-6 lg:px-10 overflow-hidden bg-[#16232f]"
+      className="relative pt-16 pb-24 md:py-28 px-5 md:px-6 lg:px-10 overflow-hidden bg-[#16232f]"
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(126,200,227,0.15),transparent_50%)] pointer-events-none" />
 

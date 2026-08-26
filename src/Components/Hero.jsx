@@ -38,7 +38,7 @@ const Hero = () => {
   }, []);
 
   return (
-    <motion.div id="top" className="relative min-h-screen overflow-hidden bg-[#16232f]">
+    <motion.div id="top" className="relative min-h-screen min-h-[100svh] overflow-hidden bg-[#16232f]">
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${heroBg})` }}
@@ -75,7 +75,7 @@ const Hero = () => {
       {/* Centre scrim keeps the headline readable over the peaks */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(13,23,32,0.4)_0%,rgba(13,23,32,0.15)_45%,transparent_75%)] pointer-events-none" />
 
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 md:px-12 lg:px-20 pt-28 pb-20 text-center">
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen min-h-[100svh] px-6 md:px-12 lg:px-20 pt-24 pb-16 md:pt-28 md:pb-20 text-center">
         {/* Portrait composition */}
         <div
           className="relative flex items-center justify-center w-full max-w-lg h-56 sm:h-64 md:h-72"

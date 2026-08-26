@@ -116,8 +116,15 @@ export class Journey {
       // A section is held against the bottom of the screen while the next one
       // covers it, so read the resting place off the slot around it instead.
       const slot = el.closest(".stack-slot") ?? el;
-      const rect = slot.getBoundingClientRect();
-      return { top: rect.top + window.scrollY, height: el.offsetHeight || 1 };
+      // Sticky elements report their painted box from getBoundingClientRect,
+      // which is the top of the screen once they are held. Walk offsetParent
+      // instead so the companion still maps against the section's place in
+      // the document.
+      let top = 0;
+      for (let node = slot; node; node = node.offsetParent) {
+        top += node.offsetTop;
+      }
+      return { top, height: el.offsetHeight || 1 };
     });
     this.lastScroll = window.scrollY;
   }

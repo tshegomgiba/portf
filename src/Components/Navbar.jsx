@@ -36,10 +36,14 @@ const Navbar = () => {
     document.body.style.overflow = "";
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    // The section itself may be held mid cover, so aim at its slot, which sits
-    // exactly where the section comes to rest.
+    // Sticky slots report their painted box from getBoundingClientRect, so
+    // walk offsetParent for the place they occupy in the document.
     const slot = target.closest(".stack-slot") ?? target;
-    const top = slot.getBoundingClientRect().top + window.scrollY - NAV_OFFSET;
+    let top = 0;
+    for (let node = slot; node; node = node.offsetParent) {
+      top += node.offsetTop;
+    }
+    top -= NAV_OFFSET;
 
     requestAnimationFrame(() => {
       window.scrollTo({ top: Math.max(top, 0), behavior: reduced ? "auto" : "smooth" });

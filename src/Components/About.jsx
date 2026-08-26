@@ -30,13 +30,13 @@ const About = () => {
   return (
     <section
       id="about"
-      className="relative py-28 overflow-hidden bg-[#dfe8f1]"
+      className="relative py-16 md:py-28 overflow-hidden bg-[#dfe8f1]"
     >
       <div className="absolute inset-0 grain opacity-60 pointer-events-none" />
       <div className="absolute -top-32 -left-32 w-[30rem] h-[30rem] rounded-full bg-[#7ec8e3]/25 blur-3xl pointer-events-none" />
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-10">
-        <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-16 items-start">
+        <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-10 lg:gap-16 items-start">
           <div data-aos="fade-right">
             <p className="eyebrow mb-5">01 / About</p>
             <h2 className="display-title text-4xl md:text-6xl mb-8">

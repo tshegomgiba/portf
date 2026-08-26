@@ -27,18 +27,22 @@ html {
 /*
  * Stacked sections.
  *
- * A panel holds against the bottom of the screen once you have scrolled to the
- * end of it, and the section after it rises up and covers it. Scrolling back up
- * plays the same thing in reverse.
+ * Desktop: a panel holds against the bottom of its own slot once you reach
+ * the end of it. The spacer under it is the hold, and the next slot is pulled
+ * up by the same amount, so the following section starts climbing at the
+ * moment the current one stops. Each slot is its own containing block, which
+ * is what stops every panel gluing itself to the screen at once.
  *
- * The spacer under each panel is what gives it room to hold, and the next slot
- * is pulled up by the same amount, so the following section starts climbing at
- * the moment the current one stops. The two cancel out and the document is no
- * taller than it would otherwise be.
- *
- * Sticky does all of the work. There is no scroll listener and nothing being
- * driven from JavaScript, so it cannot fall behind the finger on touch.
+ * Phones (below 768px): the slot itself sticks to the top of the screen, with
+ * each one painted above the last. Scrolling down, the next card slides up
+ * and covers the one underneath. Scrolling up reveals it again. `--pin` is
+ * measured in StackSection so a taller-than-screen section can be read first,
+ * then hold on its last screenful.
  */
+.stack-track {
+  position: relative;
+}
+
 .stack-slot {
   position: relative;
 }
@@ -46,9 +50,6 @@ html {
 .stack-panel {
   position: sticky;
   bottom: 0;
-  /* The z-index is set per slot in StackSection, ascending. Document order
-     alone would usually be enough, but only until one of these sections grows
-     a stacking context of its own. */
 }
 
 .stack-spacer {
@@ -60,11 +61,42 @@ html {
   margin-top: calc(var(--cover) * -1);
 }
 
-/* A panel shorter than the screen would not fill it while being held, leaving
-   the page background showing above it as the next one climbs. */
 .stack-panel > * {
   min-height: 100vh;
   min-height: 100svh;
+}
+
+@media (max-width: 767px) {
+  html {
+    /* Smooth-scroll on the root fights a finger flick on iOS. */
+    scroll-behavior: auto;
+  }
+
+  .stack-slot {
+    position: sticky;
+    top: var(--pin, 0px);
+    min-height: 100vh;
+    min-height: 100svh;
+    isolation: isolate;
+  }
+
+  .stack-panel {
+    position: relative;
+    bottom: auto;
+  }
+
+  .stack-spacer {
+    display: none;
+  }
+
+  .stack-slot + .stack-slot {
+    margin-top: 0;
+    box-shadow: 0 -18px 40px -18px rgba(13, 23, 32, 0.45);
+  }
+
+  .stack-track {
+    touch-action: pan-y;
+  }
 }
 
 body {
@@ -239,6 +271,21 @@ body {
   /* No hold means no travel, so the sections simply scroll past each other. */
   :root {
     --cover: 0px;
+  }
+
+  .stack-slot {
+    position: relative;
+    top: auto;
+    box-shadow: none;
+  }
+
+  .stack-slot + .stack-slot {
+    box-shadow: none;
+  }
+
+  .stack-panel {
+    position: relative;
+    bottom: auto;
   }
 }
 

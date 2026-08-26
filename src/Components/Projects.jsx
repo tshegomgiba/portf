@@ -18,14 +18,14 @@ const Projects = () => {
   return (
     <section
       id="projects"
-      className="relative py-28 px-6 lg:px-10 overflow-hidden bg-[#dfe8f1]"
+      className="relative py-16 md:py-28 px-5 md:px-6 lg:px-10 overflow-hidden bg-[#dfe8f1]"
     >
       <div className="absolute inset-0 grain opacity-60 pointer-events-none" />
       <div className="absolute top-40 right-0 w-[28rem] h-[28rem] rounded-full bg-[#7ec8e3]/20 blur-3xl pointer-events-none" />
 
       <div className="relative z-10 max-w-7xl mx-auto">
         <motion.div
-          className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14"
+          className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10 md:mb-14"
           initial={{ opacity: 0, y: -40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -50,7 +50,7 @@ const Projects = () => {
 
         {/* Cards are wide enough to sit three across on a desktop, and capped
             to the row so a 320px phone shrinks one instead of clipping it. */}
-        <div className="flex flex-wrap justify-center gap-7">
+        <div className="flex flex-wrap justify-center gap-5 md:gap-7">
           {projects.map((project, index) => (
             <motion.div
               key={index}
@@ -178,7 +178,7 @@ const Projects = () => {
         </div>
 
         <motion.div
-          className="text-center mt-20"
+          className="text-center mt-12 md:mt-20"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}

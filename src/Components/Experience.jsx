@@ -23,14 +23,14 @@ const Experience = () => {
   return (
     <section
       id="experience"
-      className="relative py-28 px-6 lg:px-10 overflow-hidden bg-[#cfdcea]"
+      className="relative py-16 md:py-28 px-5 md:px-6 lg:px-10 overflow-hidden bg-[#cfdcea]"
     >
       <div className="absolute inset-0 grain opacity-60 pointer-events-none" />
       <div className="absolute top-1/3 -right-32 w-[30rem] h-[30rem] rounded-full bg-[#7ec8e3]/25 blur-3xl pointer-events-none" />
 
       <div className="relative z-10 max-w-6xl mx-auto">
         <motion.div
-          className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14"
+          className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10 md:mb-14"
           initial={{ opacity: 0, y: -40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
