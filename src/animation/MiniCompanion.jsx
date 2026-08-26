@@ -5,6 +5,7 @@ import Sidekick from "./Sidekick";
 import { SECTIONS } from "./journey";
 import { useCompanionTalk } from "./useCompanionTalk";
 import { getTalk } from "./dialogue";
+import { isAutoScrollOn } from "./autoScroll";
 
 const gazeAt = (el, x, y) => {
   if (!el) return;
@@ -57,7 +58,8 @@ const MiniCompanion = () => {
 
         if (across.size) {
           const next = Math.max(...across);
-          if (getTalk().current?.tag === "Intro" && next !== 0) return;
+          if (getTalk().holding && next !== 0) return;
+          if (getTalk().current?.tag === "Intro" && next !== 0 && !isAutoScrollOn()) return;
           setIndex(next);
         }
       },
@@ -156,8 +158,17 @@ const MiniCompanion = () => {
           <div ref={pixelGaze} className="origin-bottom">
             <PixelSprite
               size={26}
-              walking={walking}
-              waving={!walking && (pixelLine || talk?.tag === "Goodbye") && !talk?.laugh}
+              walking={walking || talk?.tag === "Visit"}
+              waving={
+                (!walking || talk?.tag === "Visit") &&
+                (pixelLine || talk?.tag === "Goodbye" || talk?.tag === "Visit") &&
+                !talk?.laugh
+              }
+              waving={
+                !walking &&
+                (pixelLine || talk?.tag === "Goodbye" || talk?.tag === "Visit") &&
+                !talk?.laugh
+              }
               laughing={Boolean(talk?.laugh)}
               {...skin}
             />
@@ -172,6 +183,7 @@ const MiniCompanion = () => {
           align="start"
           kit={["lecture", "book", "grade", "chalk", "review", "invite"][index]}
           gazeRef={bitGaze}
+          sending={talk?.tag === "Visit"}
         />
       </motion.div>
     </div>

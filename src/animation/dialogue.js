@@ -238,6 +238,7 @@ class CompanionTalk {
     this.sentHome = false;
     this.reading = "";
     this.introDone = false;
+    this.freshUntil = 0;
   }
 
   on(fn) {
@@ -256,6 +257,10 @@ class CompanionTalk {
 
   get busy() {
     return this.queue.length > 0 || this.stepping;
+  }
+
+  get holding() {
+    return this.freshUntil > 0 && performance.now() < this.freshUntil;
   }
 
   say(lines, tag, opts = {}) {
@@ -348,6 +353,7 @@ class CompanionTalk {
     this.reading = "";
     this.introDone = false;
     this.opened = false;
+    this.freshUntil = 0;
   }
 
   reset() {
@@ -362,6 +368,7 @@ class CompanionTalk {
     this.lastIndex = 0;
     this.dwellSection = "top";
     this.introDone = false;
+    this.freshUntil = performance.now() + 900;
     this.arrive("top");
   }
 
@@ -434,6 +441,8 @@ class CompanionTalk {
   }
 
   enter(section, index) {
+    if (this.holding && section !== "top") return;
+
     if (section) this.visited.add(section);
 
     if (!this.opened) {
@@ -471,42 +480,42 @@ class CompanionTalk {
   }
 
   idle(touring = false) {
-    if (!this.opened || this.greeting || this.busy) return;
+    if (!this.opened || this.greeting || this.busy) return false;
 
     if (this.dwellSection === "stack" && !this.played.has("stack-1")) {
       this.say(onStack[1], "Stack", { key: "stack-1", who: "bit", banter: true, joke: true });
-      return;
+      return true;
     }
     if (this.dwellSection === "stack" && !this.played.has("stack-2")) {
       this.say(onStack[2], "Stack", { key: "stack-2", who: "pixel", banter: true });
-      return;
+      return true;
     }
     if (this.dwellSection === "projects" && !this.played.has("projects-1")) {
       this.say(onProjects[1], "Work", { key: "projects-1", who: "bit", banter: true, joke: true });
-      return;
+      return true;
     }
     if (this.dwellSection === "projects" && !this.played.has("projects-2")) {
       this.say(onProjects[2], "Work", { key: "projects-2", who: "pixel", banter: true });
-      return;
+      return true;
     }
     if (this.dwellSection === "projects" && !this.played.has("projects-3")) {
       this.say(onProjects[3], "Work", { key: "projects-3", who: "bit", banter: true, joke: true });
-      return;
+      return true;
     }
     if (this.dwellSection === "about" && !this.played.has("creative")) {
       this.say(onCreative[0], "Lesson", { key: "creative", who: "bit", banter: true });
-      return;
+      return true;
     }
     if (this.dwellSection === "about" && !this.played.has("creative-2")) {
       this.say(onCreative[1], "Note", { key: "creative-2", who: "pixel", banter: true, joke: true });
-      return;
+      return true;
     }
     if (this.dwellSection === "experience" && !this.played.has("experience-1")) {
       this.say(onExperience[1], "Lesson", { key: "experience-1", who: "bit" });
-      return;
+      return true;
     }
 
-    if (touring) return;
+    if (touring) return false;
 
     const roll = Math.random();
     const heat = this.heat;
@@ -534,6 +543,12 @@ class CompanionTalk {
     const who = this.turn;
     this.turn = other(this.turn);
     this.say(lines, tag, { who, banter: lines.length > 1, joke });
+    return true;
+  }
+
+  /** Play the next scripted line for this page. Used by the page-by-page tour. */
+  next() {
+    return this.idle(true);
   }
 
   hire(over) {
@@ -568,6 +583,18 @@ class CompanionTalk {
 
   hello() {
     this.saidHello = true;
+  }
+
+  present(name, onDone) {
+    const first = name ? `That's ${name}. Off you go.` : "Off you go.";
+    return this.say([first], "Visit", {
+      interrupt: true,
+      who: "pixel",
+      ondone: () => {
+        onDone?.();
+        this.say(["We'll wait here."], "Visit", { who: "bit" });
+      },
+    });
   }
 
   goodbye(onDone) {

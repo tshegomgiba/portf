@@ -45,20 +45,25 @@ export const bootExperience = () => {
 export const restartExperience = () => {
   stopAutoScroll();
   hush();
+  goHome();
   getTalk().reset();
   startQueued = true;
   session += 1;
   booted = true;
   tell();
   enableAtmosphere();
-  goHome();
 };
 
-/** Called when a companion mounts. Starts queued Restart talk after remount. */
+/** After remount, start intro once the page has settled at the top. */
 export const mountTalk = () => {
   if (!startQueued) return;
-  startQueued = false;
-  getTalk().begin(true);
+  const kick = () => {
+    if (!startQueued) return;
+    startQueued = false;
+    goHome();
+    getTalk().begin(true);
+  };
+  requestAnimationFrame(() => requestAnimationFrame(kick));
 };
 
 if (import.meta.hot) {

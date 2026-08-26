@@ -234,6 +234,8 @@ if (typeof window !== "undefined") {
     if (event.target?.closest?.("[data-sound-toggle]")) return;
     startAtmosphere();
     window.removeEventListener("pointerdown", kickoff);
+    window.removeEventListener("touchstart", kickoff);
   };
   window.addEventListener("pointerdown", kickoff, { passive: true });
+  window.addEventListener("touchstart", kickoff, { passive: true });
 }

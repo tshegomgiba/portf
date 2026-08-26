@@ -18,6 +18,8 @@ import {
 import { TeacherGear } from "./teacherSet";
 import { hush, speak } from "./voice";
 import { useCompanionTalk } from "./useCompanionTalk";
+import { getTalk } from "./dialogue";
+import { isAutoScrollOn } from "./autoScroll";
 import {
   AlertTriangle,
   AlertCircle,
@@ -1157,7 +1159,7 @@ const Scene = ({ journey, reduced, doomed, arriving, arrivingWho, onMeltdown }) 
     }
 
     // After thirty quiet seconds on contact they say goodbye, then go home.
-    let wave = talk?.tag === "Goodbye" ? 1 : 0;
+    let wave = talk?.tag === "Goodbye" || talk?.tag === "Visit" ? 1 : 0;
 
     // Ease the wave in and out so an interruption does not snap the arm.
     waveLevel.current += (wave - waveLevel.current) * clamp(dt * 8, 0, 1);
@@ -1363,7 +1365,15 @@ const Scene = ({ journey, reduced, doomed, arriving, arrivingWho, onMeltdown }) 
     tag.current.position.copy(place.current);
 
     const nearest = Math.round(journey.position);
-    if (nearest !== spokenRef.current && talk?.tag !== "Intro") {
+    if (getTalk().holding) {
+      if (spokenRef.current !== 0) {
+        spokenRef.current = 0;
+        setSpoken(0);
+      }
+    } else if (
+      nearest !== spokenRef.current &&
+      (talk?.tag !== "Intro" || isAutoScrollOn())
+    ) {
       spokenRef.current = nearest;
       setSpoken(nearest);
     }
@@ -2058,9 +2068,14 @@ const Companion = () => {
       <div className={`fixed inset-0 pointer-events-none ${doomed ? "z-[70]" : "z-40"}`}>
         <Canvas
           key={life}
-          dpr={[1, 1.75]}
+          dpr={reduced ? [1, 1] : [1, 1.35]}
           camera={{ position: [0, 0, 10], fov: 45 }}
-          gl={{ antialias: true, alpha: true }}
+          gl={{
+            antialias: !reduced,
+            alpha: true,
+            powerPreference: "high-performance",
+            stencil: false,
+          }}
           style={{ background: "transparent", pointerEvents: "none" }}
         >
           <Scene

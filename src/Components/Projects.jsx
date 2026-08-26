@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { FiGithub, FiCode, FiExternalLink, FiStar } from "react-icons/fi";
 import { projects } from "../data/projects";
 import { liveProjectCount, numberWord } from "../data/stats";
+import { openWatchedSite } from "../animation/openSite";
 
 const Projects = () => {
   const getStatusColor = (status) => {
@@ -98,6 +99,9 @@ const Projects = () => {
                         href={project.link}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={(event) =>
+                          openWatchedSite(event, project.link, project.title)
+                        }
                         className="p-3 bg-white rounded-full text-[#16232f] shadow-lg"
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.95 }}
@@ -150,6 +154,9 @@ const Projects = () => {
                       href={project.link}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={(event) =>
+                        openWatchedSite(event, project.link, project.title)
+                      }
                       className="inline-flex items-center gap-2 text-sm font-semibold text-[#16232f] border-b-2 border-[#2f7ea8] pb-0.5 hover:text-[#2f7ea8] transition-colors"
                       whileHover={{ x: 4 }}
                       whileTap={{ scale: 0.95 }}

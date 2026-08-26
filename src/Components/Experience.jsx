@@ -10,6 +10,7 @@ import {
   certifications,
   languages,
 } from "../data/experience";
+import { openWatchedSite } from "../animation/openSite";
 
 const Experience = () => {
   const [active, setActive] = useState(0);
@@ -135,6 +136,9 @@ const Experience = () => {
                             href={role.url}
                             target="_blank"
                             rel="noopener noreferrer"
+                            onClick={(event) =>
+                              openWatchedSite(event, role.url, role.company)
+                            }
                             aria-label={`Open ${role.company} website`}
                             className={`flex-shrink-0 p-1.5 rounded-lg ${
                               isActive
@@ -175,6 +179,9 @@ const Experience = () => {
                       href={current.url}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={(event) =>
+                        openWatchedSite(event, current.url, current.company)
+                      }
                       aria-label={`Open ${current.company} website`}
                       className={`flex items-center justify-center w-16 h-16 rounded-2xl flex-shrink-0 p-3 ${
                         current.lightLogo
@@ -196,6 +203,9 @@ const Experience = () => {
                           href={current.url}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={(event) =>
+                            openWatchedSite(event, current.url, current.company)
+                          }
                           className="inline-flex items-center gap-2 hover:text-[#2f7ea8] transition-colors"
                         >
                           {current.company}

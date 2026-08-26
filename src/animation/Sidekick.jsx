@@ -13,6 +13,7 @@ const Sidekick = ({
   align = "center",
   kit = "lecture",
   gazeRef,
+  sending = false,
 }) => {
   const mine = Boolean(talk?.laugh || talk?.who === "bit" || talk?.who === "both");
   const skin = tone ? BIT_PALE : BIT_INK;
@@ -51,8 +52,8 @@ const Sidekick = ({
       >
         <PixelSprite
           size={size}
-          walking={walking}
-          waving={mine && !talk?.laugh}
+          walking={walking || sending}
+          waving={(mine || sending) && !talk?.laugh}
           laughing={Boolean(talk?.laugh)}
           kind="bit"
           kit={kit}

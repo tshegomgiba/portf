@@ -1,19 +1,29 @@
+/**
+ * Optional page-by-page tour. Each section is a stop. After a pause, it
+ * moves to the next one. A real finger scroll turns it off. Programmatic
+ * motion does not.
+ */
 
 import { SECTIONS } from "./journey";
 import { getTalk } from "./dialogue";
 
 const NAV = 72;
-const MIN_STAY = 9000;
-const REST = 5500;
-const MAX_STAY = 34000;
+const MIN_STAY = 3500;
+const REST = 2000;
+const MAX_STAY = 26000;
+const DRAG = 72;
 
 const pages = () => SECTIONS.map(({ id }) => id);
 
 let on = false;
 let timer;
+let motion;
 let guided = false;
 let guidedUntil = 0;
 let lastAct = 0;
+let at = 0;
+let touchY = null;
+let touchFromControls = false;
 const listeners = new Set();
 
 const tell = () => listeners.forEach((fn) => fn(on));
@@ -22,30 +32,105 @@ const reduced = () =>
   typeof window !== "undefined" &&
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+const phone = () =>
+  typeof window !== "undefined" &&
+  (window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 768);
+
+const viewH = () =>
+  window.visualViewport?.height ?? window.innerHeight;
+
+const navOffset = () => {
+  const bar = document.querySelector("header");
+  if (!bar) return NAV;
+  return Math.max(NAV, Math.round(bar.getBoundingClientRect().height));
+};
+
+const onControls = (node) =>
+  Boolean(
+    node?.closest?.(
+      "[data-auto-scroll], [data-experience-restart], [data-sound-toggle]"
+    )
+  );
+
 const currentIndex = () => {
   const ids = pages();
-  const focus = window.scrollY + window.innerHeight * 0.42;
-  let at = 0;
+  const focus = window.scrollY + viewH() * 0.32;
+  let found = 0;
   ids.forEach((id, i) => {
     const el = document.getElementById(id);
     if (!el) return;
     const top = el.getBoundingClientRect().top + window.scrollY;
-    if (focus >= top - 24) at = i;
+    if (focus >= top - 24) found = i;
   });
-  return at;
+  return found;
+};
+
+const cancelMotion = () => {
+  if (motion) {
+    cancelAnimationFrame(motion);
+    motion = null;
+  }
+};
+
+const settle = (ms) => {
+  guided = true;
+  guidedUntil = performance.now() + ms;
+  window.setTimeout(() => {
+    if (performance.now() >= guidedUntil - 16) guided = false;
+  }, ms);
+};
+
+const animateScroll = (top, ms) => {
+  cancelMotion();
+  const from = window.scrollY;
+  const start = performance.now();
+  settle(ms + 280);
+  const tick = (now) => {
+    if (!on) {
+      motion = null;
+      return;
+    }
+    const t = Math.min(1, (now - start) / ms);
+    const ease = 1 - (1 - t) ** 3;
+    window.scrollTo(0, from + (top - from) * ease);
+    if (t < 1) {
+      motion = requestAnimationFrame(tick);
+      return;
+    }
+    motion = null;
+    guided = false;
+  };
+  motion = requestAnimationFrame(tick);
 };
 
 const goTo = (id) => {
   const el = document.getElementById(id);
   if (!el) return;
-  const top = el.getBoundingClientRect().top + window.scrollY - NAV;
-  guided = true;
-  guidedUntil = performance.now() + 1400;
-  window.scrollTo({
-    top: Math.max(0, top),
-    behavior: reduced() ? "auto" : "smooth",
-  });
-  window.history.replaceState(null, "", `#${id}`);
+  const top = Math.max(
+    0,
+    el.getBoundingClientRect().top + window.scrollY - navOffset()
+  );
+  const slow = phone();
+  const ms = reduced() ? 0 : slow ? 920 : 700;
+
+  if (ms === 0) {
+    settle(200);
+    window.scrollTo(0, top);
+    guided = false;
+  } else if (slow) {
+    // iOS often drops window.scrollTo({ behavior: "smooth" }) after a tap.
+    animateScroll(top, ms);
+  } else {
+    settle(ms + 400);
+    window.scrollTo({ top, behavior: "smooth" });
+    window.setTimeout(() => {
+      guided = false;
+    }, ms + 200);
+  }
+
+  window.setTimeout(() => {
+    window.history.replaceState(null, "", `#${id}`);
+  }, slow ? ms + 40 : 0);
 };
 
 const clear = () => {
@@ -58,19 +143,22 @@ const clear = () => {
 const stop = () => {
   on = false;
   clear();
+  cancelMotion();
   guided = false;
+  touchY = null;
   tell();
 };
 
 const step = () => {
   if (!on) return;
   const ids = pages();
-  const next = currentIndex() + 1;
+  const next = at + 1;
   if (next >= ids.length) {
     stop();
     return;
   }
-  goTo(ids[next]);
+  at = next;
+  goTo(ids[at]);
   schedule();
 };
 
@@ -92,9 +180,18 @@ const schedule = () => {
     } catch {
       busy = false;
     }
-    // While they are talking, the quiet clock does not run. A poke or a
-    // click also pushes it back, so the reader can finish the exchange.
     if (busy) lastAct = now;
+    else {
+      try {
+        if (getTalk().next()) {
+          lastAct = now;
+          timer = window.setTimeout(wait, 180);
+          return;
+        }
+      } catch {
+        /* talk may not be open yet */
+      }
+    }
 
     const quiet = now - lastAct;
     const ready = elapsed >= MIN_STAY && !busy && quiet >= REST;
@@ -103,9 +200,9 @@ const schedule = () => {
       step();
       return;
     }
-    timer = window.setTimeout(wait, 420);
+    timer = window.setTimeout(wait, busy ? 280 : 180);
   };
-  timer = window.setTimeout(wait, 420);
+  timer = window.setTimeout(wait, 180);
 };
 
 export const stopAutoScroll = () => {
@@ -127,10 +224,20 @@ export const toggleAutoScroll = () => {
 
   on = true;
   tell();
-
+  at = currentIndex();
   const ids = pages();
-  if (currentIndex() >= ids.length - 1) goTo(ids[0]);
-  schedule();
+  const begin = () => {
+    if (!on) return;
+    if (at >= ids.length - 1) {
+      at = 0;
+      goTo(ids[0]);
+    }
+    schedule();
+  };
+
+  // Let the tap that started the tour finish so iOS does not cancel the scroll.
+  if (phone()) window.setTimeout(begin, 80);
+  else begin();
   return true;
 };
 
@@ -141,24 +248,54 @@ if (typeof window !== "undefined") {
   };
 
   window.addEventListener("wheel", interrupt, { passive: true });
+
   window.addEventListener(
-    "touchmove",
+    "touchstart",
     (event) => {
-      const y = event.touches?.[0]?.clientY;
-      if (y == null) return;
-      if (!interrupt._y) {
-        interrupt._y = y;
-        return;
-      }
-      if (Math.abs(y - interrupt._y) > 48) interrupt();
-      interrupt._y = y;
+      touchFromControls = onControls(event.target);
+      touchY = event.touches?.[0]?.clientY ?? null;
     },
     { passive: true }
   );
-  window.addEventListener("pointerdown", (event) => {
-    if (event.target?.closest?.("[data-auto-scroll]")) return;
-    if (on && !guided) bump();
-  }, { passive: true });
+
+  window.addEventListener(
+    "touchmove",
+    (event) => {
+      if (!on || touchFromControls) return;
+      const y = event.touches?.[0]?.clientY;
+      if (y == null || touchY == null) return;
+      if (Math.abs(y - touchY) > DRAG) interrupt();
+    },
+    { passive: true }
+  );
+
+  window.addEventListener(
+    "touchend",
+    () => {
+      touchY = null;
+      touchFromControls = false;
+    },
+    { passive: true }
+  );
+
+  window.addEventListener(
+    "touchcancel",
+    () => {
+      touchY = null;
+      touchFromControls = false;
+    },
+    { passive: true }
+  );
+
+  window.addEventListener(
+    "pointerdown",
+    (event) => {
+      if (onControls(event.target)) return;
+      if (on && !guided) bump();
+    },
+    { passive: true }
+  );
+
   window.addEventListener("keydown", (event) => {
     if (
       ["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(
@@ -170,8 +307,9 @@ if (typeof window !== "undefined") {
     }
     if (on) bump();
   });
+
   window.addEventListener("click", (event) => {
-    if (event.target?.closest?.("[data-auto-scroll], [data-experience-restart]")) return;
+    if (onControls(event.target)) return;
     if (event.target?.closest?.("nav, a[href^='#']")) {
       interrupt();
       return;
