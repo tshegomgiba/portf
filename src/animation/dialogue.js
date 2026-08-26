@@ -338,7 +338,11 @@ class CompanionTalk {
   open() {
     if (this.opened) return;
     this.opened = true;
+    const fresh =
+      typeof window !== "undefined" &&
+      performance.getEntriesByType?.("navigation")?.[0]?.type === "reload";
     const atTop =
+      fresh ||
       this.dwellSection === "top" ||
       this.dwellSection === "" ||
       (typeof window !== "undefined" && window.scrollY < 120);
