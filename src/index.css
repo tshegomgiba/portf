@@ -400,6 +400,11 @@ p, h1, h2, h3, h4, h5, li, blockquote, figcaption, dd, dt {
     inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
+/* Pointer-tilted cards: never animate transform in CSS or it fights the 3D springs. */
+.ink-card-3d {
+  transition: box-shadow 0.35s ease, border-color 0.35s ease, background 0.35s ease;
+}
+
 .frost-tile {
   background: linear-gradient(
     155deg,
