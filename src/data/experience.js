@@ -11,6 +11,7 @@ export const timeline = [
         company: "Aucrada",
         title: "Full Stack Developer",
         period: "Feb 2026 – Aug 2026",
+        url: "https://aucrada.com/",
         logo: logoAucrada,
         lightLogo: true,
         points: [
@@ -24,6 +25,7 @@ export const timeline = [
         company: "Asante Tech Solutions",
         title: "CRM Automation & Web Development",
         period: "Sep 2025 – Feb 2026",
+        url: "https://www.asantesolutions.co.za/",
         logo: logoAsante,
         lightLogo: true,
         points: [
@@ -42,6 +44,7 @@ export const timeline = [
         company: "Tshimologong Digital Innovation Precinct",
         title: "Full Stack Software Developer Intern",
         period: "Jul 2024 – Jun 2025",
+        url: "https://tshimologong.joburg/",
         logo: logoTshimologong,
         lightLogo: false,
         points: [

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Aos from "aos";
 import "aos/dist/aos.css";
 import { motion, AnimatePresence } from "framer-motion";
-import { Briefcase, GraduationCap, Award, Languages } from "lucide-react";
+import { Briefcase, GraduationCap, Award, Languages, ExternalLink } from "lucide-react";
 import {
   timeline,
   entries,
@@ -83,50 +83,69 @@ const Experience = () => {
                     const isActive = index === active;
 
                     return (
-                      <motion.button
+                      <motion.div
                         key={role.company}
-                        onClick={() => setActive(index)}
-                        className={`relative w-full text-left flex items-center gap-3 p-3 rounded-2xl ${
+                        className={`relative w-full flex items-center gap-3 p-3 rounded-2xl ${
                           isActive
                             ? "bg-[#16232f] border border-[#16232f]"
                             : "frost-tile"
                         }`}
                         whileHover={{ x: isActive ? 0 : 4 }}
-                        whileTap={{ scale: 0.98 }}
                         transition={{ type: "spring", stiffness: 350, damping: 22 }}
                       >
-                        <span
-                          className={`flex items-center justify-center w-11 h-11 rounded-xl flex-shrink-0 p-2 ${
-                            role.lightLogo
-                              ? isActive
-                                ? "bg-white/10 border border-white/20"
-                                : "bg-[#16232f]"
-                              : "bg-white/90 border border-white/60"
-                          }`}
+                        <button
+                          type="button"
+                          onClick={() => setActive(index)}
+                          className="flex min-w-0 flex-1 items-center gap-3 text-left"
                         >
-                          <img
-                            src={role.logo}
-                            alt={`${role.company} logo`}
-                            className="w-full h-full object-contain"
-                          />
-                        </span>
-                        <span className="min-w-0">
                           <span
-                            className={`block font-display text-sm font-bold leading-snug ${
-                              isActive ? "text-white" : "text-[#16232f]"
+                            className={`flex items-center justify-center w-11 h-11 rounded-xl flex-shrink-0 p-2 ${
+                              role.lightLogo
+                                ? isActive
+                                  ? "bg-white/10 border border-white/20"
+                                  : "bg-[#16232f]"
+                                : "bg-white/90 border border-white/60"
                             }`}
                           >
-                            {role.company}
+                            <img
+                              src={role.logo}
+                              alt=""
+                              className="w-full h-full object-contain"
+                            />
                           </span>
-                          <span
-                            className={`block text-[11px] mt-0.5 truncate ${
-                              isActive ? "text-[#b8e0f0]" : "text-[#4a6076]"
+                          <span className="min-w-0 flex-1">
+                            <span
+                              className={`block font-display text-sm font-bold leading-snug ${
+                                isActive ? "text-white" : "text-[#16232f]"
+                              }`}
+                            >
+                              {role.company}
+                            </span>
+                            <span
+                              className={`block text-[11px] mt-0.5 truncate ${
+                                isActive ? "text-[#b8e0f0]" : "text-[#4a6076]"
+                              }`}
+                            >
+                              {role.period}
+                            </span>
+                          </span>
+                        </button>
+                        {role.url && (
+                          <a
+                            href={role.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`Open ${role.company} website`}
+                            className={`flex-shrink-0 p-1.5 rounded-lg ${
+                              isActive
+                                ? "text-white/55 hover:text-white"
+                                : "text-[#4a6076]/70 hover:text-[#2f7ea8]"
                             }`}
                           >
-                            {role.period}
-                          </span>
-                        </span>
-                      </motion.button>
+                            <ExternalLink size={13} />
+                          </a>
+                        )}
+                      </motion.div>
                     );
                   })}
                 </div>
@@ -152,7 +171,11 @@ const Experience = () => {
               >
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="flex items-center gap-4">
-                    <motion.div
+                    <motion.a
+                      href={current.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Open ${current.company} website`}
                       className={`flex items-center justify-center w-16 h-16 rounded-2xl flex-shrink-0 p-3 ${
                         current.lightLogo
                           ? "bg-[#16232f]"
@@ -166,10 +189,18 @@ const Experience = () => {
                         alt={`${current.company} logo`}
                         className="w-full h-full object-contain"
                       />
-                    </motion.div>
+                    </motion.a>
                     <div>
                       <h4 className="font-display text-xl md:text-2xl font-bold text-[#16232f] leading-snug">
-                        {current.company}
+                        <a
+                          href={current.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 hover:text-[#2f7ea8] transition-colors"
+                        >
+                          {current.company}
+                          <ExternalLink size={16} className="opacity-45" />
+                        </a>
                       </h4>
                       <p className="text-[#2f7ea8] text-sm font-medium mt-1">
                         {current.title}
