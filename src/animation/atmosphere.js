@@ -4,7 +4,7 @@
  * Pixel talks so the two do not fight.
  */
 
-const KEY = "atmosphere-on";
+const KEY = "sound-on";
 const BED = 0.18;
 const DUCKED = 0.055;
 
@@ -16,9 +16,8 @@ let noteTimer;
 const live = [];
 
 const wanted = () => {
-  if (typeof window === "undefined") return true;
-  const saved = window.localStorage.getItem(KEY);
-  return saved === null ? true : saved === "1";
+  if (typeof window === "undefined") return false;
+  return window.localStorage.getItem(KEY) === "1";
 };
 
 let on = wanted();

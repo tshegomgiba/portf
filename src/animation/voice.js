@@ -1,6 +1,7 @@
 /**
- * Pixel keeps the browser voice. Bit speaks through a neural teacher voice
- * so she actually sounds like a person. Chrome only unlocks speech after a click.
+ * Pixel and Bit use the same browser voice setup: the voice that already
+ * sounds natural, at Pixel's pitch and pace. Chrome only unlocks speech
+ * after a click.
  */
 
 import { duckAtmosphere, liftAtmosphere, isAtmosphereOn, watchAtmosphere } from "./atmosphere";
@@ -21,23 +22,8 @@ let repeating =
 const repeatWatchers = new Set();
 
 let muted = !isAtmosphereOn();
-let bitClip = null;
-
-const stopBit = () => {
-  if (!bitClip) return;
-  bitClip.pause();
-  if (bitClip._blob) URL.revokeObjectURL(bitClip._blob);
-  bitClip.removeAttribute("src");
-  try {
-    bitClip.load();
-  } catch {
-    /* already torn down */
-  }
-  bitClip = null;
-};
 
 const cutSpeech = () => {
-  stopBit();
   if (talking) talking.volume = 0;
   if (typeof window === "undefined") return;
   window.speechSynthesis.cancel();
@@ -74,12 +60,12 @@ export const toggleRepeat = () => {
 
 const TONE = {
   pixel: { pitch: 1.22, rate: 1.08 },
-  bit: { pitch: 1, rate: 1 },
+  bit: { pitch: 1.22, rate: 1.08 },
 };
 
 const SAME = {
   pixel: { pitch: 1.22, rate: 1.08 },
-  bit: { pitch: 1, rate: 0.96 },
+  bit: { pitch: 1.22, rate: 1.08 },
 };
 
 const arm = () => {
@@ -129,34 +115,18 @@ const pickVoices = () => {
   voicesReady = true;
   const ranked = [...pool].sort((a, b) => quality(b) - quality(a));
 
-  pixelVoice = named(ranked, [
+  const natural = [
     /microsoft (zira|jenny|aria|sara)/i,
     /samantha/i,
     /karen/i,
     /female/i,
-  ]);
+  ];
 
-  // Bit: natural pitch on the most human voice that is not Pixel.
-  // Neural/online voices first. Never Google. Never pitch-shift her.
-  bitVoice = named(
-    ranked,
-    [
-      /online|natural|neural/i,
-      /microsoft (sonia|libby|hazel|catherine|aria|jenny)/i,
-      /moira/i,
-      /tessa/i,
-      /fiona/i,
-      /serena/i,
-    ],
-    pixelVoice
-  );
+  pixelVoice = named(ranked, natural);
+  bitVoice = named(ranked, natural, pixelVoice);
 
   if (!pixelVoice) pixelVoice = ranked.find((voice) => quality(voice) >= 5) ?? pool[0];
-  if (!bitVoice || bitVoice === pixelVoice) {
-    bitVoice =
-      ranked.find((voice) => voice !== pixelVoice && quality(voice) >= 5) ||
-      pixelVoice;
-  }
+  if (!bitVoice) bitVoice = pixelVoice;
 };
 
 const voiceFor = (who) => {
@@ -197,77 +167,8 @@ const finish = (item, token) => {
   }, 300);
 };
 
-const utterBrowser = (item, token, done) => {
-  if (typeof window === "undefined" || !window.speechSynthesis) {
-    done();
-    return;
-  }
-
-  arm();
-  const who = item.who === "bit" ? "bit" : "pixel";
-  const line = new SpeechSynthesisUtterance(item.text);
-  const voice = voiceFor(who);
-  if (voice) line.voice = voice;
-  if (voice?.lang) line.lang = voice.lang;
-
-  const shared = !pixelVoice || pixelVoice === bitVoice;
-  const tone = (shared ? SAME : TONE)[who];
-  line.pitch = tone.pitch;
-  line.rate = tone.rate;
-  line.volume = 0.94;
-  talking = line;
-
-  line.onend = done;
-  line.onerror = done;
-
-  setTimeout(() => {
-    if (token !== gen || talking !== line) return;
-    if (muted) {
-      done();
-      return;
-    }
-    window.speechSynthesis.speak(line);
-  }, 40);
-};
-
-const utterBit = async (item, token, done) => {
-  stopBit();
-  try {
-    const res = await fetch(`/api/bit-voice?text=${encodeURIComponent(item.text)}`);
-    if (!res.ok) throw new Error("tts");
-    const blob = await res.blob();
-    if (token !== gen || muted) {
-      done();
-      return;
-    }
-    const src = URL.createObjectURL(blob);
-    const audio = new Audio(src);
-    audio._blob = src;
-    bitClip = audio;
-    talking = audio;
-    audio.volume = 0.92;
-    audio.onended = () => {
-      if (bitClip === audio) bitClip = null;
-      URL.revokeObjectURL(src);
-      done();
-    };
-    audio.onerror = () => {
-      if (bitClip === audio) bitClip = null;
-      URL.revokeObjectURL(src);
-      utterBrowser(item, token, done);
-    };
-    await audio.play();
-  } catch {
-    if (token !== gen || muted) {
-      done();
-      return;
-    }
-    utterBrowser(item, token, done);
-  }
-};
-
 const utter = (item, token) => {
-  if (typeof window === "undefined") {
+  if (typeof window === "undefined" || !window.speechSynthesis) {
     finish(item, token);
     return;
   }
@@ -281,7 +182,21 @@ const utter = (item, token) => {
     return;
   }
 
+  arm();
   duckAtmosphere();
+
+  const who = item.who === "bit" ? "bit" : "pixel";
+  const line = new SpeechSynthesisUtterance(item.text);
+  const voice = voiceFor(who);
+  if (voice) line.voice = voice;
+  if (voice?.lang) line.lang = voice.lang;
+
+  const shared = !pixelVoice || pixelVoice === bitVoice;
+  const tone = (shared ? SAME : TONE)[who];
+  line.pitch = tone.pitch;
+  line.rate = tone.rate;
+  line.volume = 0.94;
+  talking = line;
 
   let closed = false;
   const done = () => {
@@ -292,11 +207,17 @@ const utter = (item, token) => {
   };
 
   const failsafe = setTimeout(done, Math.min(45000, 1600 + item.text.length * 70));
-  if (item.who === "bit") {
-    utterBit(item, token, done);
-    return;
-  }
-  utterBrowser(item, token, done);
+  line.onend = done;
+  line.onerror = done;
+
+  setTimeout(() => {
+    if (token !== gen || talking !== line) return;
+    if (muted) {
+      done();
+      return;
+    }
+    window.speechSynthesis.speak(line);
+  }, 40);
 };
 
 const pump = () => {
@@ -311,7 +232,6 @@ export const hush = () => {
   queue = [];
   busy = false;
   talking = null;
-  stopBit();
   if (pending) {
     clearTimeout(pending);
     pending = null;
