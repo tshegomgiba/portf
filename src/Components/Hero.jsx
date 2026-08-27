@@ -115,7 +115,7 @@ const Hero = () => {
             <img
               className="relative w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 rounded-full object-cover shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] ring-2 ring-white/40 transition-transform duration-500 group-hover:scale-105"
               src={img1}
-              alt="Tshegofatso Mgiba"
+              alt={profile.name}
             />
           </div>
         </div>
@@ -128,14 +128,14 @@ const Hero = () => {
           className="display-title text-3xl sm:text-4xl md:text-5xl mt-3 text-white [text-shadow:0_4px_30px_rgba(0,0,0,0.55)]"
           data-aos="zoom-in"
         >
-          Tshegofatso <span className="text-[#b8e0f0]">Mgiba</span>
+          Tshegofatso Ashleigh <span className="text-[#b8e0f0]">Mgiba</span>
         </h1>
 
         <div className="mt-5 flex items-center gap-4 w-full max-w-md" data-aos="fade-up">
           <span className="h-px flex-1 bg-white/25" />
           <p className="font-display text-sm md:text-base text-[#b8e0f0] whitespace-nowrap">
             <Typewriter
-              words={["Tshegofatso Mgiba", "Full Stack Developer"]}
+              words={[profile.name, "Full Stack Developer"]}
               loop={0}
               cursor
               cursorStyle="|"

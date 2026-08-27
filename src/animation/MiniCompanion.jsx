@@ -5,7 +5,6 @@ import Sidekick from "./Sidekick";
 import { SECTIONS } from "./journey";
 import { useCompanionTalk } from "./useCompanionTalk";
 import { getTalk } from "./dialogue";
-import { isAutoScrollOn } from "./autoScroll";
 
 const gazeAt = (el, x, y) => {
   if (!el) return;
@@ -59,7 +58,7 @@ const MiniCompanion = () => {
         if (across.size) {
           const next = Math.max(...across);
           if (getTalk().holding && next !== 0) return;
-          if (getTalk().current?.tag === "Intro" && next !== 0 && !isAutoScrollOn()) return;
+          if (getTalk().starting && next !== 0) return;
           setIndex(next);
         }
       },

@@ -19,7 +19,6 @@ import { TeacherGear } from "./teacherSet";
 import { hush, speak } from "./voice";
 import { useCompanionTalk } from "./useCompanionTalk";
 import { getTalk } from "./dialogue";
-import { isAutoScrollOn } from "./autoScroll";
 import {
   AlertTriangle,
   AlertCircle,
@@ -1367,15 +1366,12 @@ const Scene = ({ journey, reduced, doomed, arriving, arrivingWho, onMeltdown }) 
     tag.current.position.copy(place.current);
 
     const nearest = Math.round(journey.position);
-    if (getTalk().holding) {
+    if (getTalk().holding || getTalk().starting) {
       if (spokenRef.current !== 0) {
         spokenRef.current = 0;
         setSpoken(0);
       }
-    } else if (
-      nearest !== spokenRef.current &&
-      (talk?.tag !== "Intro" || isAutoScrollOn())
-    ) {
+    } else if (nearest !== spokenRef.current) {
       spokenRef.current = nearest;
       setSpoken(nearest);
     }

@@ -26,7 +26,7 @@ export const SECTIONS = [
     pose: "read",
     tone: 0,
     lines: [
-      "That's Tshegofatso up there.",
+      "That's Ashleigh up there.",
       "Diploma in IT, Software Development.",
     ],
   },

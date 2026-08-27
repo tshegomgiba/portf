@@ -176,7 +176,8 @@ const schedule = () => {
     const elapsed = now - started;
     let busy = false;
     try {
-      busy = getTalk().busy;
+      const talk = getTalk();
+      busy = talk.busy || talk.starting;
     } catch {
       busy = false;
     }

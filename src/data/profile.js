@@ -1,5 +1,6 @@
 export const profile = {
-  name: "Tshegofatso Mgiba",
+  name: "Tshegofatso Ashleigh Mgiba",
+  spokenName: "Ashleigh",
   role: "Full Stack Developer",
   email: "tshegofatsononyane009@gmail.com",
   phone: "+27 81 503 8545",

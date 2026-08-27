@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X, Download } from "lucide-react";
 import { profile } from "../data/profile";
+import { isScrollLocked } from "../animation/scrollLock";
 
 const links = [
   { label: "Home", href: "#top" },
@@ -32,6 +33,10 @@ const Navbar = () => {
     if (!target) return;
 
     event.preventDefault();
+    if (isScrollLocked() && href !== "#top") {
+      setOpen(false);
+      return;
+    }
     setOpen(false);
     document.body.style.overflow = "";
 

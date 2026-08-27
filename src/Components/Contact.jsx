@@ -61,7 +61,7 @@ const CosmicContactForm = () => {
         body: JSON.stringify({
           access_key: ACCESS_KEY,
           subject: `Portfolio message from ${formData.name}`,
-          from_name: "Tshegofatso Mgiba portfolio",
+          from_name: "Tshegofatso Ashleigh Mgiba portfolio",
           name: formData.name,
           email: formData.email,
           message: formData.message,
@@ -334,7 +334,7 @@ const CosmicContactForm = () => {
           <p className="font-display font-bold text-white/70">
             TM<span className="text-[#7ec8e3]">.</span>
           </p>
-          <p>© {new Date().getFullYear()} Tshegofatso Mgiba. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Tshegofatso Ashleigh Mgiba. All rights reserved.</p>
         </div>
       </div>
     </section>

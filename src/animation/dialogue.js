@@ -5,6 +5,8 @@
  */
 
 import { hush as hushVoice, isSpeechMuted, speak } from "./voice";
+import { lockScroll, unlockScroll } from "./scrollLock";
+import { profile } from "../data/profile";
 
 const intro = [
   "Hi, I'm Pixel. I'll ride along.",
@@ -14,7 +16,7 @@ const intro = [
 ];
 
 const onAbout = [
-  "That's Tshegofatso up there.",
+  `That's ${profile.spokenName} up there.`,
   "Diploma in IT, Software Development.",
 ];
 
@@ -335,8 +337,11 @@ class CompanionTalk {
       if (done && !this.busy) done();
     };
 
-    // Muted sendoff still needs time on screen so the wave can land.
-    if (beat.tag === "Visit" && isSpeechMuted()) {
+    // Muted intro and sendoff still need time on screen so the lines can land.
+    if (
+      (beat.tag === "Visit" || beat.tag === "Intro") &&
+      isSpeechMuted()
+    ) {
       window.setTimeout(finish, Math.min(2600, 1100 + beat.text.length * 35));
       return;
     }
@@ -366,6 +371,7 @@ class CompanionTalk {
     this.introDone = false;
     this.opened = false;
     this.freshUntil = 0;
+    unlockScroll();
   }
 
   reset() {
@@ -381,6 +387,7 @@ class CompanionTalk {
     this.dwellSection = "top";
     this.introDone = false;
     this.freshUntil = performance.now() + 900;
+    lockScroll();
     this.arrive("top");
   }
 
@@ -400,6 +407,7 @@ class CompanionTalk {
         who: ["pixel", "bit", "bit", "pixel"],
         ondone: () => {
           this.introDone = true;
+          window.setTimeout(() => unlockScroll(), 280);
         },
       });
       return;
@@ -453,7 +461,7 @@ class CompanionTalk {
   }
 
   enter(section, index) {
-    if (this.holding && section !== "top") return;
+    if ((this.holding || this.starting) && section !== "top") return;
 
     if (section) this.visited.add(section);
 

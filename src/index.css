@@ -16,6 +16,12 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+html.intro-lock,
+body.intro-lock {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 body {
   background-color: var(--paper);
   color: var(--ink);
