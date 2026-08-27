@@ -241,6 +241,8 @@ class CompanionTalk {
     this.reading = "";
     this.introDone = false;
     this.freshUntil = 0;
+    this.waiting = false;
+    this.returnAt = 0;
   }
 
   on(fn) {
@@ -339,7 +341,7 @@ class CompanionTalk {
 
     // Muted intro and sendoff still need time on screen so the lines can land.
     if (
-      (beat.tag === "Visit" || beat.tag === "Intro") &&
+      (beat.tag === "Visit" || beat.tag === "Intro" || beat.tag === "Return") &&
       isSpeechMuted()
     ) {
       window.setTimeout(finish, Math.min(2600, 1100 + beat.text.length * 35));
@@ -371,6 +373,8 @@ class CompanionTalk {
     this.introDone = false;
     this.opened = false;
     this.freshUntil = 0;
+    this.waiting = false;
+    this.returnAt = 0;
     unlockScroll();
   }
 
@@ -476,6 +480,8 @@ class CompanionTalk {
       return;
     }
 
+    this.waiting = false;
+
     this.lastIndex = index;
     this.dwell = 0;
     if (section) this.dwellSection = section;
@@ -490,7 +496,7 @@ class CompanionTalk {
   }
 
   linger(section, seconds, touring = false) {
-    if (!this.opened || this.greeting || seconds < (touring ? 5 : 11) || this.busy) return;
+    if (!this.opened || this.greeting || this.waiting || seconds < (touring ? 5 : 11) || this.busy) return;
     if (this.played.has(`linger:${section}`)) return;
     this.say(pick(linger, this.used, "linger"), "Lesson", {
       key: `linger:${section}`,
@@ -500,7 +506,7 @@ class CompanionTalk {
   }
 
   idle(touring = false) {
-    if (!this.opened || this.greeting || this.busy) return false;
+    if (!this.opened || this.greeting || this.waiting || this.busy) return false;
 
     if (this.dwellSection === "stack" && !this.played.has("stack-1")) {
       this.say(onStack[1], "Stack", { key: "stack-1", who: "bit", banter: true, joke: true });
@@ -606,15 +612,48 @@ class CompanionTalk {
   }
 
   present(name, onDone) {
+    this.waiting = true;
     const first = name ? `That's ${name}. Off you go.` : "Off you go.";
     const started = performance.now();
-    return this.say([first, "We'll wait here."], "Visit", {
+    return this.say([first, "I'll wait here."], "Visit", {
       interrupt: true,
       who: ["pixel", "bit"],
       ondone: () => {
         const left = Math.max(700, 2800 - (performance.now() - started));
         window.setTimeout(() => onDone?.(), left);
       },
+    });
+  }
+
+  waitHere() {
+    this.waiting = true;
+    if (!this.opened || this.starting || this.sentHome) return false;
+    if (this.busy) return false;
+    if (this.current?.tag === "Visit") return false;
+    return this.say(["I'll wait here."], "Visit", { who: "bit" });
+  }
+
+  welcomeBack(touring = false) {
+    if (!this.waiting) return false;
+    this.waiting = false;
+    if (!this.opened || this.starting || this.sentHome) return false;
+    const lines = touring
+      ? ["Now let's continue.", "Welcome back."]
+      : ["Welcome back.", "Now let's continue.", "Feel free to look at the rest."];
+    const text = lines[this.returnAt % lines.length];
+    this.returnAt += 1;
+    const who = this.returnAt % 2 === 0 ? "bit" : "pixel";
+    return this.say([text], "Return", { interrupt: true, who });
+  }
+
+  lookAround() {
+    if (!this.waiting) return false;
+    this.waiting = false;
+    if (!this.opened || this.starting || this.sentHome) return false;
+    if (this.current?.tag === "Return") return false;
+    return this.say(["Feel free to look at the rest."], "Return", {
+      interrupt: true,
+      who: "pixel",
     });
   }
 

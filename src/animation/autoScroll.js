@@ -177,7 +177,7 @@ const schedule = () => {
     let busy = false;
     try {
       const talk = getTalk();
-      busy = talk.busy || talk.starting;
+      busy = talk.busy || talk.starting || talk.waiting;
     } catch {
       busy = false;
     }
@@ -245,6 +245,11 @@ export const toggleAutoScroll = () => {
 if (typeof window !== "undefined") {
   const interrupt = () => {
     if (!on || guided || performance.now() < guidedUntil) return;
+    try {
+      if (getTalk().waiting) return;
+    } catch {
+      /* talk may not be open yet */
+    }
     stop();
   };
 

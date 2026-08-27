@@ -67,7 +67,7 @@ export const useCompanionTalk = ({
       const talk = getTalk();
       const now = performance.now();
       const touring = isAutoScrollOn();
-      if (touring) return;
+      if (touring || talk.waiting) return;
 
       const idle =
         repeating ||
