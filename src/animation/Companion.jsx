@@ -1344,7 +1344,9 @@ const Scene = ({ journey, reduced, doomed, arriving, arrivingWho, onMeltdown }) 
 
     // Seated poses drop the hips onto the seat; hovering ones float.
     bob.current.position.y =
-      -0.17 * pose.sit + Math.sin(time * 1.6) * 0.075 * idle * (1 - pose.sit);
+      -0.17 * pose.sit +
+      Math.sin(time * 1.6) * 0.075 * idle * (1 - pose.sit) +
+      Math.sin(time * 9) * 0.05 * swing;
 
     if (tablet.current) {
       tablet.current.visible = weights[1] > 0.02;
@@ -1679,9 +1681,8 @@ const Scene = ({ journey, reduced, doomed, arriving, arrivingWho, onMeltdown }) 
       }
 
       if (swing > 0.001) {
-        bShoulderLZ += (0.95 - bShoulderLZ) * swing * 0.65;
-        bElbowL += (0.35 - bElbowL) * swing;
         bHeadX -= 0.08 * swing;
+        bSpine += 0.04 * swing;
       }
 
       bit.chassis.current.rotation.x = bSpine;
@@ -1697,9 +1698,10 @@ const Scene = ({ journey, reduced, doomed, arriving, arrivingWho, onMeltdown }) 
       bit.armL.current.rotation.x = bShoulderLX;
       bit.armL.current.rotation.z = bShoulderLZ;
       bit.foreL.current.rotation.x = bElbowL;
-      bit.armR.current.rotation.x = bShoulderRX;
-      bit.armR.current.rotation.z = bShoulderRZ;
-      bit.foreR.current.rotation.x = bElbowR;
+      bit.armR.current.rotation.x = bShoulderRX * (1 - swing);
+      bit.armR.current.rotation.z =
+        bShoulderRZ + (2.05 - bShoulderRZ) * swing + Math.sin(time * 11) * 0.4 * swing;
+      bit.foreR.current.rotation.x = bElbowR * (1 - swing) + 0.3 * swing;
 
       bit.legL.current.rotation.x = bitPose.hip;
       bit.legR.current.rotation.x = bitPose.hip * 0.94;
@@ -1707,7 +1709,9 @@ const Scene = ({ journey, reduced, doomed, arriving, arrivingWho, onMeltdown }) 
       bit.shinR.current.rotation.x = bitPose.knee * 0.96;
 
       bit.bob.current.position.y =
-        -0.12 * bitPose.sit + Math.sin(time * 1.15) * 0.055 * bitIdle * (1 - bitPose.sit);
+        -0.12 * bitPose.sit +
+        Math.sin(time * 1.15) * 0.055 * bitIdle * (1 - bitPose.sit) +
+        Math.sin(time * 8.2) * 0.04 * swing;
 
       const hideBit = bitBlast > 0.05 ? Math.max(0, 1 - (bitBlast - 0.05) * 2.4) : 1;
       let bitGone = 1;

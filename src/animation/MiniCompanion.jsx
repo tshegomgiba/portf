@@ -158,14 +158,8 @@ const MiniCompanion = () => {
           <div ref={pixelGaze} className="origin-bottom">
             <PixelSprite
               size={26}
-              walking={walking || talk?.tag === "Visit"}
+              walking={walking && talk?.tag !== "Visit"}
               waving={
-                (!walking || talk?.tag === "Visit") &&
-                (pixelLine || talk?.tag === "Goodbye" || talk?.tag === "Visit") &&
-                !talk?.laugh
-              }
-              waving={
-                !walking &&
                 (pixelLine || talk?.tag === "Goodbye" || talk?.tag === "Visit") &&
                 !talk?.laugh
               }

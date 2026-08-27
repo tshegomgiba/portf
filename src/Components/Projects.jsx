@@ -23,12 +23,10 @@ const Projects = () => {
   return (
     <section
       id="projects"
-      className="relative bg-[#dfe8f1] px-5 py-16 md:px-6 md:py-28 lg:px-10"
+      className="relative overflow-hidden bg-[#dfe8f1] px-5 py-16 md:px-6 md:py-28 lg:px-10"
     >
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0 grain opacity-60" />
-        <div className="absolute top-40 right-0 h-[28rem] w-[28rem] rounded-full bg-[#7ec8e3]/20 blur-3xl" />
-      </div>
+      <div className="pointer-events-none absolute inset-0 grain opacity-60" />
+      <div className="pointer-events-none absolute right-0 top-40 h-[28rem] w-[28rem] rounded-full bg-[#7ec8e3]/20 blur-3xl" />
 
       <div className="relative z-10 mx-auto max-w-7xl">
         <motion.div
@@ -55,7 +53,7 @@ const Projects = () => {
 
         <div className="rule mb-14" />
 
-        <div className="flex flex-wrap justify-center gap-8 px-1 py-6 md:gap-10 md:py-8">
+        <div className="flex flex-wrap justify-center gap-5 md:gap-7 [perspective:1200px]">
           {projects.map((project, index) => (
             <ProjectCard
               key={project.title}

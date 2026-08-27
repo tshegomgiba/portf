@@ -4,7 +4,7 @@
  * never talk over each other; a joke is the exception, and they both laugh.
  */
 
-import { hush as hushVoice, speak } from "./voice";
+import { hush as hushVoice, isSpeechMuted, speak } from "./voice";
 
 const intro = [
   "Hi, I'm Pixel. I'll ride along.",
@@ -327,9 +327,21 @@ class CompanionTalk {
       return;
     }
 
-    const done = beat.ondone;
-    this.step();
-    if (done && !this.busy) done();
+    const seq = this.seq;
+    const finish = () => {
+      if (seq !== this.seq) return;
+      const done = beat.ondone;
+      this.step();
+      if (done && !this.busy) done();
+    };
+
+    // Muted sendoff still needs time on screen so the wave can land.
+    if (beat.tag === "Visit" && isSpeechMuted()) {
+      window.setTimeout(finish, Math.min(2600, 1100 + beat.text.length * 35));
+      return;
+    }
+
+    finish();
   }
 
   get greeting() {
@@ -587,12 +599,13 @@ class CompanionTalk {
 
   present(name, onDone) {
     const first = name ? `That's ${name}. Off you go.` : "Off you go.";
-    return this.say([first], "Visit", {
+    const started = performance.now();
+    return this.say([first, "We'll wait here."], "Visit", {
       interrupt: true,
-      who: "pixel",
+      who: ["pixel", "bit"],
       ondone: () => {
-        onDone?.();
-        this.say(["We'll wait here."], "Visit", { who: "bit" });
+        const left = Math.max(700, 2800 - (performance.now() - started));
+        window.setTimeout(() => onDone?.(), left);
       },
     });
   }

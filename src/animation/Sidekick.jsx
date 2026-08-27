@@ -52,7 +52,7 @@ const Sidekick = ({
       >
         <PixelSprite
           size={size}
-          walking={walking || sending}
+          walking={walking && !sending}
           waving={(mine || sending) && !talk?.laugh}
           laughing={Boolean(talk?.laugh)}
           kind="bit"

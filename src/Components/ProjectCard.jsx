@@ -1,99 +1,92 @@
-import React from "react";
-import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
+import React, { useMemo } from "react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { FiGithub, FiCode, FiExternalLink, FiStar } from "react-icons/fi";
 import { openWatchedSite } from "../animation/openSite";
 
-const TILT = 14;
-const DEPTH = 8;
-const REST_X = -0.14;
-const REST_Y = 0.1;
+const TILT = 12;
 
 const ProjectCard = ({ project, index, statusColor }) => {
-  const reduced = useReducedMotion();
-  const pointX = useMotionValue(REST_X);
-  const pointY = useMotionValue(REST_Y);
-  const settings = { stiffness: 240, damping: 22, mass: 0.55 };
+  const skipTilt = useMemo(() => {
+    if (typeof window === "undefined") return true;
+    return (
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      window.matchMedia("(pointer: coarse)").matches
+    );
+  }, []);
 
-  const rotateX = useSpring(useTransform(pointY, [-0.5, 0.5], [TILT, -TILT]), settings);
-  const rotateY = useSpring(useTransform(pointX, [-0.5, 0.5], [-TILT, TILT]), settings);
-  const sheenX = useTransform(pointX, [-0.5, 0.5], ["125%", "-25%"]);
-  const sheenY = useTransform(pointY, [-0.5, 0.5], ["125%", "-25%"]);
+  const pointX = useMotionValue(0);
+  const pointY = useMotionValue(0);
+  const settings = { stiffness: 220, damping: 22, mass: 0.6 };
+  const rotateX = useSpring(
+    useTransform(pointY, [-0.5, 0.5], [TILT, -TILT]),
+    settings
+  );
+  const rotateY = useSpring(
+    useTransform(pointX, [-0.5, 0.5], [-TILT, TILT]),
+    settings
+  );
+  const sheenX = useTransform(pointX, [-0.5, 0.5], ["110%", "-10%"]);
+  const sheenY = useTransform(pointY, [-0.5, 0.5], ["110%", "-10%"]);
 
   const track = (event) => {
-    if (reduced || event.pointerType === "touch") return;
+    if (skipTilt) return;
     const box = event.currentTarget.getBoundingClientRect();
     pointX.set((event.clientX - box.left) / box.width - 0.5);
     pointY.set((event.clientY - box.top) / box.height - 0.5);
   };
 
   const reset = () => {
-    pointX.set(REST_X);
-    pointY.set(REST_Y);
+    pointX.set(0);
+    pointY.set(0);
   };
 
   return (
-    <div
-      className="relative w-72 max-w-full"
-      style={{ perspective: 920, perspectiveOrigin: "50% 42%" }}
+    <motion.div
+      data-pixel={project.title === "HiStakes" ? "deep" : undefined}
+      className="group relative w-72 max-w-full"
+      style={{ perspective: 920 }}
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6, delay: index * 0.1 }}
     >
       <motion.div
-        data-pixel={project.title === "HiStakes" ? "deep" : undefined}
-        className="group relative"
-        style={
-          reduced
-            ? undefined
-            : {
-                rotateX,
-                rotateY,
-                transformPerspective: 920,
-                transformStyle: "preserve-3d",
-              }
-        }
+        className="relative"
+        style={{
+          rotateX: skipTilt ? 0 : rotateX,
+          rotateY: skipTilt ? 0 : rotateY,
+          transformPerspective: 920,
+          transformStyle: "preserve-3d",
+        }}
         onPointerMove={track}
         onPointerLeave={reset}
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6, delay: index * 0.1 }}
-        whileHover={reduced ? { y: -8, scale: 1.02 } : { scale: 1.03 }}
+        whileHover={skipTilt ? { y: -6 } : { y: -10 }}
       >
         <span
-          className="pointer-events-none absolute -inset-x-3 top-8 h-[88%] rounded-[2rem] bg-[#16232f]/30 blur-2xl"
-          style={{ transform: "translateZ(-42px)" }}
+          className="pointer-events-none absolute inset-x-3 top-8 bottom-0 rounded-[1.75rem] bg-[#16232f]/30 opacity-40 blur-xl transition-opacity duration-300 group-hover:opacity-75"
+          style={{ transform: "translateZ(-36px)" }}
         />
 
-        {Array.from({ length: DEPTH }, (_, layer) => (
-          <span
-            key={layer}
-            aria-hidden
-            className="pointer-events-none absolute inset-0 rounded-3xl"
-            style={{
-              background:
-                layer === DEPTH - 1
-                  ? "#5a7186"
-                  : `linear-gradient(180deg, #8aa0b6, #6d8498)`,
-              transform: `translateZ(${-2.4 * (layer + 1)}px)`,
-              opacity: 0.55 + layer * 0.05,
-            }}
-          />
-        ))}
-
         <div
-          className="relative ink-card ink-card-3d w-full overflow-hidden rounded-3xl"
-          style={{ transform: "translateZ(16px)" }}
+          className="relative ink-card w-full rounded-3xl"
+          style={{ transformStyle: "preserve-3d" }}
         >
           <motion.span
-            className="pointer-events-none absolute inset-0 z-20 opacity-0 mix-blend-soft-light transition-opacity duration-300 group-hover:opacity-100"
+            className="pointer-events-none absolute inset-0 z-30 rounded-3xl opacity-0 mix-blend-soft-light transition-opacity duration-300 group-hover:opacity-100"
             style={{
               background:
-                "radial-gradient(circle at center, rgba(255,255,255,0.58), transparent 58%)",
+                "radial-gradient(circle, rgba(255,255,255,0.7), transparent 58%)",
               backgroundPositionX: sheenX,
               backgroundPositionY: sheenY,
-              backgroundSize: "170% 170%",
+              backgroundSize: "160% 160%",
+              transform: "translateZ(48px)",
             }}
           />
 
-          <div className="shine relative h-44 overflow-hidden">
+          <div
+            className="shine relative h-44 overflow-hidden rounded-t-3xl"
+            style={{ transform: "translateZ(18px)" }}
+          >
             <img
               src={project.image}
               alt={`${project.title} screenshot`}
@@ -101,7 +94,7 @@ const ProjectCard = ({ project, index, statusColor }) => {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#16232f]/60 via-transparent to-[#16232f]/25" />
 
-            <div className="absolute top-4 left-4 z-10 flex items-center gap-2 rounded-full bg-[#16232f]/85 py-1.5 pl-2.5 pr-3 backdrop-blur-sm">
+            <div className="absolute left-4 top-4 z-10 flex items-center gap-2 rounded-full bg-[#16232f]/85 py-1.5 pl-2.5 pr-3 backdrop-blur-sm">
               <span className="relative flex items-center justify-center">
                 <span
                   className={`absolute h-2.5 w-2.5 rounded-full opacity-60 animate-ping ${statusColor}`}
@@ -114,7 +107,7 @@ const ProjectCard = ({ project, index, statusColor }) => {
             </div>
 
             {project.featured && (
-              <div className="absolute top-4 right-4 z-10 flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold text-[#16232f]">
+              <div className="absolute right-4 top-4 z-10 flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold text-[#16232f]">
                 <FiStar className="h-3 w-3 text-[#2f7ea8]" />
                 Featured
               </div>
@@ -143,7 +136,20 @@ const ProjectCard = ({ project, index, statusColor }) => {
             </div>
           </div>
 
-          <div className="p-6 pt-12">
+          <motion.div
+            className="absolute left-5 top-[9.5rem] z-20 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/70 bg-white/95 p-2.5 shadow-[0_12px_28px_-14px_rgba(22,35,47,0.6)]"
+            style={{ transform: "translateZ(42px)" }}
+            whileHover={{ scale: 1.08, rotate: -3 }}
+            transition={{ type: "spring", stiffness: 300, damping: 15 }}
+          >
+            <img
+              src={project.logo}
+              alt={`${project.title} logo`}
+              className="h-full w-full object-contain"
+            />
+          </motion.div>
+
+          <div className="p-6 pt-12" style={{ transform: "translateZ(22px)" }}>
             <h3 className="mb-2.5 font-display text-lg font-bold text-[#16232f] transition-colors group-hover:text-[#2f7ea8]">
               {project.title}
             </h3>
@@ -199,21 +205,8 @@ const ProjectCard = ({ project, index, statusColor }) => {
             )}
           </div>
         </div>
-
-        <motion.div
-          className="absolute left-5 top-[9.5rem] z-20 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/70 bg-white/95 p-2.5 shadow-[0_12px_28px_-14px_rgba(22,35,47,0.6)]"
-          style={{ transform: "translateZ(42px)" }}
-          whileHover={{ scale: 1.08, rotate: -3 }}
-          transition={{ type: "spring", stiffness: 300, damping: 15 }}
-        >
-          <img
-            src={project.logo}
-            alt={`${project.title} logo`}
-            className="h-full w-full object-contain"
-          />
-        </motion.div>
       </motion.div>
-    </div>
+    </motion.div>
   );
 };
 
