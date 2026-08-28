@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react';
+import React, { useEffect, useMemo, useState, lazy, Suspense } from 'react';
 import { FaGithub, FaLinkedin, FaEnvelope } from "react-icons/fa";
 import { FiDownload } from "react-icons/fi";
 import Aos from 'aos';
@@ -22,7 +22,6 @@ const HeroBgAnimation = lazy(() => import("../Hero/HeroBgAnimation"));
 const PortraitCoin = ({ src, alt }) => {
   const [spins, setSpins] = useState(0);
   const [spinning, setSpinning] = useState(false);
-  const taps = useRef({ count: 0, last: 0 });
   const still = useMemo(() => {
     if (typeof window === "undefined") return true;
     return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -51,12 +50,7 @@ const PortraitCoin = ({ src, alt }) => {
   };
 
   const onTap = () => {
-    const now = Date.now();
-    if (now - taps.current.last > 850) taps.current.count = 0;
-    taps.current.count += 1;
-    taps.current.last = now;
-    if (taps.current.count < 3) return;
-    taps.current.count = 0;
+    if (spinning) return;
     setSpinning(true);
     setSpins((n) => n + 1);
   };
@@ -71,7 +65,7 @@ const PortraitCoin = ({ src, alt }) => {
       <div
         role="button"
         tabIndex={0}
-        aria-label="Portrait. Tap three times to spin."
+        aria-label="Portrait. Tap to spin."
         onClick={onTap}
         onKeyDown={(event) => {
           if (event.key === "Enter" || event.key === " ") {
