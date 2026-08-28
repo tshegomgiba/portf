@@ -503,7 +503,8 @@ a,
   transition: transform 0.9s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
-.group:hover .shine::after {
+.group:hover .shine::after,
+.group.shine:hover::after {
   transform: translateX(130%);
 }
 

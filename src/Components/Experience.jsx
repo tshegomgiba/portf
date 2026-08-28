@@ -276,33 +276,36 @@ const Experience = () => {
               {education.map((item) => {
                 const [from, to] = item.period.split(/\s+[–-]\s+/);
                 return (
-                  <div
+                  <motion.div
                     key={item.school}
-                    className="flex overflow-hidden rounded-2xl border border-white/50 shadow-[0_14px_32px_-28px_rgba(22,35,47,0.55)]"
+                    className="group shine relative flex cursor-default overflow-hidden rounded-2xl border border-white/50 shadow-[0_14px_32px_-28px_rgba(22,35,47,0.55)]"
+                    whileHover={{ y: -5, scale: 1.02 }}
+                    whileTap={{ scale: 0.99 }}
+                    transition={{ type: "spring", stiffness: 380, damping: 24 }}
                   >
                     <div className="flex w-16 flex-shrink-0 flex-col items-center justify-center bg-[#16232f] px-2 py-4 text-center">
-                      <GraduationCap className="h-4 w-4 text-[#7ec8e3]" />
+                      <GraduationCap className="h-4 w-4 text-[#7ec8e3] transition-transform duration-300 group-hover:rotate-[-12deg] group-hover:scale-110" />
                       <p className="mt-2 font-display text-[11px] font-bold tabular-nums text-white">
                         {from}
                       </p>
                       {to && (
                         <>
-                          <span className="my-0.5 block h-3 w-px bg-[#7ec8e3]/50" />
+                          <span className="my-0.5 block h-3 w-px bg-[#7ec8e3]/50 transition-all duration-300 group-hover:h-4 group-hover:bg-[#7ec8e3]" />
                           <p className="font-display text-[11px] font-bold tabular-nums text-white">
                             {to}
                           </p>
                         </>
                       )}
                     </div>
-                    <div className="min-w-0 flex-1 bg-white/45 px-4 py-3.5 backdrop-blur-md">
-                      <p className="font-display text-[15px] font-bold leading-snug text-[#16232f]">
+                    <div className="min-w-0 flex-1 bg-white/45 px-4 py-3.5 backdrop-blur-md transition-colors duration-300 group-hover:bg-white/70">
+                      <p className="font-display text-[15px] font-bold leading-snug text-[#16232f] transition-colors duration-300 group-hover:text-[#2f7ea8]">
                         {item.school}
                       </p>
                       <p className="mt-1 text-[12px] font-light leading-snug text-[#4a6076]">
                         {item.award}
                       </p>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
             </motion.div>
@@ -325,17 +328,26 @@ const Experience = () => {
                 {certifications.map((cert, index) => (
                   <motion.div
                     key={cert.name}
-                    className="frost-tile flex items-start gap-3 rounded-2xl px-3.5 py-3"
+                    className="group shine frost-tile relative flex cursor-default items-start gap-3 overflow-hidden rounded-2xl px-3.5 py-3"
                     initial={{ opacity: 0, y: 12 }}
-                    whileInView={{ opacity: 1, y: 0 }}
+                    whileInView={{
+                      opacity: 1,
+                      y: 0,
+                      transition: { duration: 0.4, delay: index * 0.05 },
+                    }}
+                    whileHover={{
+                      y: -4,
+                      scale: 1.025,
+                      transition: { type: "spring", stiffness: 400, damping: 22 },
+                    }}
+                    whileTap={{ scale: 0.985 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: index * 0.05 }}
                   >
-                    <span className="mt-0.5 font-display text-[11px] font-bold tabular-nums text-[#2f7ea8]">
+                    <span className="mt-0.5 font-display text-[11px] font-bold tabular-nums text-[#2f7ea8] transition-transform duration-300 group-hover:scale-110">
                       {cert.year}
                     </span>
                     <div className="min-w-0">
-                      <p className="text-[13px] font-medium leading-snug text-[#16232f]">
+                      <p className="text-[13px] font-medium leading-snug text-[#16232f] transition-colors duration-300 group-hover:text-[#2f7ea8]">
                         {cert.name}
                       </p>
                       <p className="mt-0.5 text-[11px] font-light text-[#4a6076]">
