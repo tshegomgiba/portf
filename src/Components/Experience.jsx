@@ -16,7 +16,11 @@ const Experience = () => {
   const [active, setActive] = useState(0);
 
   useEffect(() => {
-    Aos.init({ duration: 1000, once: true });
+    Aos.init({
+      duration: 1000,
+      once: true,
+      disable: () => window.matchMedia("(max-width: 767px)").matches,
+    });
   }, []);
 
   const current = entries[active];

@@ -12,8 +12,20 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
   -webkit-text-size-adjust: 100%;
+}
+
+@media (min-width: 768px) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 html.intro-lock,
@@ -44,10 +56,6 @@ a,
 ::-moz-selection {
   background: rgba(126, 200, 227, 0.42);
   color: #16232f;
-}
-
-p, h1, h2, h3, h4, h5, li, blockquote, figcaption, dd, dt {
-  touch-action: manipulation;
 }
 
 .site-mark {
@@ -524,7 +532,11 @@ p, h1, h2, h3, h4, h5, li, blockquote, figcaption, dd, dt {
   inset: 0;
   z-index: 50;
   overflow: hidden;
-  pointer-events: none;
+  pointer-events-none;
+}
+
+.snow-layer.is-scrolling .snow-flake {
+  animation-play-state: paused;
 }
 
 .snow-flake {
@@ -536,6 +548,14 @@ p, h1, h2, h3, h4, h5, li, blockquote, figcaption, dd, dt {
   animation-name: snow-fall;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+@media (max-width: 767px) {
+  .snow-flake {
+    box-shadow: none;
+    will-change: auto;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

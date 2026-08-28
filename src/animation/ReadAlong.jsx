@@ -217,8 +217,12 @@ const ReadAlong = () => {
     window.addEventListener("pointerup", up, { passive: true });
     window.addEventListener("dblclick", dbl);
     window.addEventListener("keydown", key);
-    window.addEventListener("scroll", paint, { passive: true });
-    window.addEventListener("resize", paint);
+    const onScroll = () => {
+      if (!live.current?.range) return;
+      paint();
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
 
     return () => {
       clearTimeout(dismissAt.current);
@@ -227,8 +231,8 @@ const ReadAlong = () => {
       window.removeEventListener("pointerup", up);
       window.removeEventListener("dblclick", dbl);
       window.removeEventListener("keydown", key);
-      window.removeEventListener("scroll", paint);
-      window.removeEventListener("resize", paint);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
     };
   }, []);
 

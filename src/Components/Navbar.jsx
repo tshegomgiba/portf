@@ -41,17 +41,21 @@ const Navbar = () => {
     document.body.style.overflow = "";
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const phone = window.matchMedia("(max-width: 767px)").matches;
     const top = target.getBoundingClientRect().top + window.scrollY - NAV_OFFSET;
 
     requestAnimationFrame(() => {
-      window.scrollTo({ top: Math.max(top, 0), behavior: reduced ? "auto" : "smooth" });
+      window.scrollTo({
+        top: Math.max(top, 0),
+        behavior: reduced || phone ? "auto" : "smooth",
+      });
       window.history.replaceState(null, "", href);
     });
   };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
