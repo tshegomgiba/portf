@@ -226,6 +226,11 @@ export const toggleAutoScroll = () => {
   on = true;
   tell();
   at = currentIndex();
+  try {
+    getTalk().startTour();
+  } catch {
+    /* talk may not be open yet */
+  }
   const ids = pages();
   const begin = () => {
     if (!on) return;

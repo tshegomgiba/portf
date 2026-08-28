@@ -341,7 +341,10 @@ class CompanionTalk {
 
     // Muted intro and sendoff still need time on screen so the lines can land.
     if (
-      (beat.tag === "Visit" || beat.tag === "Intro" || beat.tag === "Return") &&
+      (beat.tag === "Visit" ||
+        beat.tag === "Intro" ||
+        beat.tag === "Return" ||
+        beat.tag === "Tour") &&
       isSpeechMuted()
     ) {
       window.setTimeout(finish, Math.min(2600, 1100 + beat.text.length * 35));
@@ -609,6 +612,14 @@ class CompanionTalk {
 
   hello() {
     this.saidHello = true;
+  }
+
+  startTour() {
+    if (!this.opened || this.starting || this.waiting) return false;
+    return this.say(["Now touring.", "Sit back and enjoy."], "Tour", {
+      interrupt: true,
+      who: "pixel",
+    });
   }
 
   present(name, onDone) {

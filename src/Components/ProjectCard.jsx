@@ -43,7 +43,7 @@ const ProjectCard = ({ project, index, statusColor }) => {
   return (
     <motion.div
       data-pixel={project.title === "HiStakes" ? "deep" : undefined}
-      className="group relative w-72 max-w-full"
+      className="group relative flex h-full w-full"
       style={{ perspective: 920 }}
       initial={{ opacity: 0, y: 50 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -51,7 +51,7 @@ const ProjectCard = ({ project, index, statusColor }) => {
       transition={{ duration: 0.6, delay: index * 0.1 }}
     >
       <motion.div
-        className="relative"
+        className="relative flex h-full flex-1 flex-col"
         style={{
           rotateX: skipTilt ? 0 : rotateX,
           rotateY: skipTilt ? 0 : rotateY,
@@ -68,7 +68,7 @@ const ProjectCard = ({ project, index, statusColor }) => {
         />
 
         <div
-          className="relative ink-card w-full rounded-3xl"
+          className="relative flex h-full flex-1 flex-col ink-card w-full rounded-3xl"
           style={{ transformStyle: "preserve-3d" }}
         >
           <motion.span
@@ -149,7 +149,7 @@ const ProjectCard = ({ project, index, statusColor }) => {
             />
           </motion.div>
 
-          <div className="p-6 pt-12" style={{ transform: "translateZ(22px)" }}>
+          <div className="flex flex-1 flex-col p-6 pt-12" style={{ transform: "translateZ(22px)" }}>
             <h3 className="mb-2.5 font-display text-lg font-bold text-[#16232f] transition-colors group-hover:text-[#2f7ea8]">
               {project.title}
             </h3>
@@ -157,7 +157,8 @@ const ProjectCard = ({ project, index, statusColor }) => {
               {project.description}
             </p>
 
-            <div className="mb-5 flex flex-wrap gap-1.5">
+            <div className="mt-auto">
+            <div className="mb-5 flex min-h-[2rem] flex-wrap content-start gap-1.5">
               {project.technologies.slice(0, 3).map((tech) => (
                 <span
                   key={tech}
@@ -194,6 +195,7 @@ const ProjectCard = ({ project, index, statusColor }) => {
                 Coming soon
               </span>
             )}
+            </div>
           </div>
         </div>
       </motion.div>

@@ -53,7 +53,7 @@ const Projects = () => {
 
         <div className="rule mb-14" />
 
-        <div className="flex flex-wrap justify-center gap-5 md:gap-7 [perspective:1200px]">
+        <div className="mx-auto grid max-w-5xl grid-cols-1 justify-items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-3 md:gap-7 [perspective:1200px]">
           {projects.map((project, index) => (
             <ProjectCard
               key={project.title}
