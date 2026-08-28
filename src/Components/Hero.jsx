@@ -23,6 +23,7 @@ const HeroBgAnimation = lazy(() => import("../Hero/HeroBgAnimation"));
 const PortraitCoin = ({ src, alt, onCheer }) => {
   const [spins, setSpins] = useState(0);
   const [spinning, setSpinning] = useState(false);
+  const [hint, setHint] = useState(true);
   const still = useMemo(() => {
     if (typeof window === "undefined") return true;
     return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -52,6 +53,7 @@ const PortraitCoin = ({ src, alt, onCheer }) => {
 
   const onTap = () => {
     if (spinning) return;
+    setHint(false);
     setSpinning(true);
     setSpins((n) => n + 1);
   };
@@ -144,6 +146,40 @@ const PortraitCoin = ({ src, alt, onCheer }) => {
           </motion.div>
         </motion.div>
       </div>
+
+      {hint && (
+        <motion.div
+          className="pointer-events-none absolute left-1/2 top-[calc(100%+0.45rem)] z-20 flex -translate-x-1/2 flex-col items-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.35 }}
+        >
+          <motion.span
+            className="flex flex-col items-center gap-0.5 text-[#b8e0f0]"
+            animate={{ opacity: [0.35, 1, 0.35], y: [3, -2, 3] }}
+            transition={{ duration: 1.35, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <svg
+              width="14"
+              height="10"
+              viewBox="0 0 12 8"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M1 6.5L6 1.5L11 6.5"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <span className="whitespace-nowrap font-display text-[10px] font-semibold uppercase tracking-[0.22em] text-white/75">
+              Press the image
+            </span>
+          </motion.span>
+        </motion.div>
+      )}
     </motion.div>
   );
 };
@@ -249,7 +285,7 @@ const Hero = () => {
           />
         </div>
 
-        <p className="eyebrow mt-8 text-[#7ec8e3]" data-aos="fade-up">
+        <p className="eyebrow mt-10 text-[#7ec8e3]" data-aos="fade-up">
           Full Stack Developer
         </p>
 
