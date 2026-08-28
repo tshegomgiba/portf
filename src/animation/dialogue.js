@@ -615,7 +615,11 @@ class CompanionTalk {
   }
 
   startTour() {
-    if (!this.opened || this.starting || this.waiting) return false;
+    if (!this.opened || this.waiting) return false;
+    if (this.starting) {
+      this.introDone = true;
+      unlockScroll();
+    }
     return this.say(["Now touring.", "Sit back and enjoy."], "Tour", {
       interrupt: true,
       who: "pixel",
