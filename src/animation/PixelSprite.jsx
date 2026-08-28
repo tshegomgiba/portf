@@ -13,7 +13,7 @@ export const BIT_INK = { shell: "#1a3d42", shade: "#2d5c62", glow: "#4db8a4" };
  * bundle is still downloading, and phones, where a full canvas would cost more
  * battery than the character is worth.
  */
-const PixelSprite = ({
+const PixelSprite = React.memo(({
   size = 40,
   walking = false,
   waving = false,
@@ -156,7 +156,7 @@ const PixelSprite = ({
     </g>
   </svg>
   );
-};
+});
 
 /**
  * Pixel sitting on a crate, putting itself back together. Used on the reboot

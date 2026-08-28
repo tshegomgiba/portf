@@ -6,46 +6,38 @@ import { SECTIONS } from "./journey";
 import { useCompanionTalk } from "./useCompanionTalk";
 import { getTalk } from "./dialogue";
 
-const gazeAt = (el, x, y) => {
-  if (!el) return;
-  const box = el.getBoundingClientRect();
-  const dx = (x - (box.left + box.width / 2)) / 72;
-  const dy = (y - (box.top + box.height / 2)) / 72;
-  const yaw = Math.max(-1, Math.min(1, dx)) * 28;
-  const pitch = Math.max(-1, Math.min(1, dy)) * -18;
-  el.style.transform = `rotateY(${yaw}deg) rotateX(${pitch}deg)`;
-};
+const KITS = ["lecture", "book", "grade", "chalk", "review", "invite"];
 
 /**
- * The phone sized pair. The 3D scene is off below 768px, so Pixel and Bit
- * flatten into sprites, stay in the bottom left, and still take turns talking.
+ * The phone sized pair. The 3D scene stays off below 768px, so Pixel and Bit
+ * flatten into sprites, share one caption, and keep animation cheap.
  */
 const MiniCompanion = () => {
   const [enabled, setEnabled] = useState(false);
   const [index, setIndex] = useState(0);
   const [walking, setWalking] = useState(false);
   const [away, setAway] = useState(false);
+  const [paused, setPaused] = useState(false);
   const seen = useRef(-1);
-  const pixelGaze = useRef(null);
-  const bitGaze = useRef(null);
   const talk = useCompanionTalk({
     sectionIndex: index,
     enabled,
     paused: away,
+    lite: true,
   });
 
   useEffect(() => {
-    const check = () => setEnabled(window.innerWidth < 768);
+    const media = window.matchMedia("(max-width: 767px)");
+    const check = () => setEnabled(media.matches);
     check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
+    media.addEventListener("change", check);
+    return () => media.removeEventListener("change", check);
   }, []);
 
   useEffect(() => {
     if (!enabled) return undefined;
 
     const across = new Set();
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -78,9 +70,10 @@ const MiniCompanion = () => {
 
     const first = seen.current === -1;
     seen.current = index;
-    setWalking(!first);
+    if (first) return undefined;
 
-    const stop = setTimeout(() => setWalking(false), 1000);
+    setWalking(true);
+    const stop = setTimeout(() => setWalking(false), 480);
     return () => clearTimeout(stop);
   }, [index, enabled]);
 
@@ -101,13 +94,10 @@ const MiniCompanion = () => {
 
   useEffect(() => {
     if (!enabled) return undefined;
-    if (!window.matchMedia("(pointer: fine)").matches) return undefined;
-    const follow = (event) => {
-      gazeAt(pixelGaze.current, event.clientX, event.clientY);
-      gazeAt(bitGaze.current, event.clientX, event.clientY);
-    };
-    window.addEventListener("pointermove", follow, { passive: true });
-    return () => window.removeEventListener("pointermove", follow);
+    const sync = () => setPaused(document.hidden);
+    sync();
+    document.addEventListener("visibilitychange", sync);
+    return () => document.removeEventListener("visibilitychange", sync);
   }, [enabled]);
 
   if (!enabled) return null;
@@ -117,67 +107,70 @@ const MiniCompanion = () => {
   const pixelLine = Boolean(
     talk?.laugh || talk?.who === "pixel" || talk?.who === "both" || (talk?.text && !talk?.who)
   );
+  const speaker =
+    talk?.who === "bit" ? "Bit" : talk?.who === "both" || talk?.laugh ? "Pixel & Bit" : "Pixel";
+  const line = talk?.laugh ? "Ha ha." : talk?.text;
 
   return (
     <div
-      className="pointer-events-none fixed left-3 z-40 flex justify-start"
-      style={{ bottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+      className={`mini-bots pointer-events-none fixed left-3 z-40 flex justify-start${
+        paused ? " bot-paused" : ""
+      }`}
+      style={{
+        bottom: "max(0.75rem, env(safe-area-inset-bottom))",
+        contain: "layout style",
+      }}
     >
       <motion.div
-        layout
-        transition={{ type: "spring", stiffness: 80, damping: 15 }}
-        animate={{ opacity: away ? 0 : 1, y: away ? 18 : 0 }}
-        className="flex items-end gap-1.5"
+        animate={{ opacity: away ? 0 : 1, y: away ? 12 : 0 }}
+        transition={{ duration: 0.22, ease: "easeOut" }}
+        className="flex max-w-[min(18rem,calc(100vw-6.5rem))] flex-col items-start"
       >
-        <div className="flex max-w-[min(16rem,calc(100vw-6.5rem))] flex-col items-start">
-          <AnimatePresence mode="wait">
-            {pixelLine && talk?.text && !away && (
-              <motion.div
-                key={`pixel-${talk.text}`}
-                initial={{ opacity: 0, y: 8, scale: 0.85 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
-                className="mb-1.5 max-w-full rounded-2xl bg-white px-3 py-2 shadow-[0_10px_24px_-8px_rgba(13,23,32,0.55)]"
+        <AnimatePresence mode="wait">
+          {line && !away && (
+            <motion.div
+              key={`${speaker}-${line}`}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="mb-1.5 w-full rounded-2xl bg-white px-3 py-2 shadow-[0_10px_24px_-8px_rgba(13,23,32,0.55)]"
+            >
+              <p
+                className={`font-display text-[8px] font-bold uppercase tracking-[0.18em] ${
+                  talk.tag === "Unhinged" || talk.laugh ? "text-[#e8613a]" : "text-[#2f7ea8]"
+                }`}
               >
-                <p
-                  className={`font-display text-[8px] font-bold uppercase tracking-[0.18em] ${
-                    talk.tag === "Unhinged" || talk.laugh ? "text-[#e8613a]" : "text-[#2f7ea8]"
-                  }`}
-                >
-                  Pixel{talk.tag ? ` / ${talk.tag}` : ""}
-                </p>
-                <p className="mt-0.5 line-clamp-4 text-[10.5px] font-medium leading-snug text-[#16232f]">
-                  {talk.laugh ? "Ha ha." : talk.text}
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                {speaker}
+                {talk.tag ? ` / ${talk.tag}` : ""}
+              </p>
+              <p className="mt-0.5 line-clamp-3 text-[12px] font-medium leading-snug text-[#16232f]">
+                {line}
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-          <div ref={pixelGaze} className="origin-bottom">
-            <PixelSprite
-              size={26}
-              walking={walking && talk?.tag !== "Visit"}
-              waving={
-                (pixelLine || talk?.tag === "Goodbye" || talk?.tag === "Visit") &&
-                !talk?.laugh
-              }
-              laughing={Boolean(talk?.laugh)}
-              {...skin}
-            />
-          </div>
+        <div className="flex items-end gap-2">
+          <PixelSprite
+            size={38}
+            walking={walking && talk?.tag !== "Visit"}
+            waving={
+              (pixelLine || talk?.tag === "Goodbye" || talk?.tag === "Visit") &&
+              !talk?.laugh
+            }
+            laughing={Boolean(talk?.laugh)}
+            {...skin}
+          />
+          <Sidekick
+            talk={away ? null : talk}
+            tone={section.tone}
+            walking={walking}
+            size={36}
+            kit={KITS[index]}
+            sending={talk?.tag === "Visit"}
+          />
         </div>
-
-        <Sidekick
-          talk={away ? null : talk}
-          tone={section.tone}
-          walking={walking}
-          size={24}
-          align="start"
-          kit={["lecture", "book", "grade", "chalk", "review", "invite"][index]}
-          gazeRef={bitGaze}
-          sending={talk?.tag === "Visit"}
-        />
       </motion.div>
     </div>
   );

@@ -15,6 +15,7 @@ export const useCompanionTalk = ({
   sectionIndex = 0,
   enabled = true,
   paused = false,
+  lite = false,
 } = {}) => {
   const [beat, setBeat] = useState(null);
   const lastAct = useRef(
@@ -72,7 +73,7 @@ export const useCompanionTalk = ({
       const idle =
         repeating ||
         (document.hasFocus() &&
-          now - lastAct.current > 8000 &&
+          now - lastAct.current > (lite ? 14000 : 8000) &&
           !["INPUT", "TEXTAREA"].includes(document.activeElement?.tagName));
 
       if (section !== "contact") talk.linger(section, (now - started) / 1000, false);
@@ -85,16 +86,16 @@ export const useCompanionTalk = ({
 
       if (!idleShown.current || now >= nextIdle.current) {
         idleShown.current = true;
-        nextIdle.current = now + 12000;
+        nextIdle.current = now + (lite ? 16000 : 12000);
         talk.idle();
       }
-    }, 1600);
+    }, lite ? 2400 : 1600);
 
     return () => {
       clearInterval(tick);
       stopRepeat();
     };
-  }, [section, enabled, paused]);
+  }, [section, enabled, paused, lite]);
 
   useEffect(() => {
     if (!enabled || paused || section !== "contact") return undefined;
@@ -122,19 +123,19 @@ export const useCompanionTalk = ({
         if (!sent) return;
         window.scrollTo({ top: 0, behavior: "smooth" });
       });
-    }, 400);
+    }, lite ? 900 : 400);
 
     return () => {
       clearInterval(tick);
       if (sent && getTalk().current?.tag === "Goodbye") getTalk().hush();
     };
-  }, [section, enabled, paused]);
+  }, [section, enabled, paused, lite]);
 
   useEffect(() => {
     if (!enabled || paused) return undefined;
     const talk = getTalk();
     let over = false;
-    const bound = new Set();
+    const bound = [];
 
     const enter = () => {
       const now = performance.now();
@@ -148,36 +149,49 @@ export const useCompanionTalk = ({
       over = false;
       talk.hire(false);
     };
-    const peek = () => talk.inspect();
-
-    const bind = (selector, onEnter, onLeave) => {
-      document.querySelectorAll(selector).forEach((el) => {
-        if (bound.has(el)) return;
-        bound.add(el);
-        el.addEventListener("pointerenter", onEnter);
-        if (onLeave) el.addEventListener("pointerleave", onLeave);
-      });
+    const peek = (event) => {
+      if (event?.target?.closest?.("a, button")) return;
+      talk.inspect();
     };
 
+    const listen = (el, type, fn) => {
+      el.addEventListener(type, fn);
+      bound.push([el, type, fn]);
+    };
+
+    const seen = new Set();
     const attach = () => {
-      bind(HIRE, enter, leave);
-      bind(DEEP, peek);
+      document.querySelectorAll(HIRE).forEach((el) => {
+        if (seen.has(el)) return;
+        seen.add(el);
+        if (lite) listen(el, "click", enter);
+        else {
+          listen(el, "pointerenter", enter);
+          listen(el, "pointerleave", leave);
+        }
+      });
+      document.querySelectorAll(DEEP).forEach((el) => {
+        if (seen.has(el)) return;
+        seen.add(el);
+        listen(el, lite ? "click" : "pointerenter", peek);
+      });
     };
 
     attach();
-    const root = document.getElementById("contact") || document.body;
-    const watch = new MutationObserver(attach);
-    watch.observe(root, { childList: true, subtree: true });
+    const roots = lite
+      ? ["projects", "contact"].map((id) => document.getElementById(id)).filter(Boolean)
+      : [document.getElementById("contact") || document.body];
+    const watchers = roots.map((root) => {
+      const watch = new MutationObserver(attach);
+      watch.observe(root, { childList: true, subtree: true });
+      return watch;
+    });
 
     return () => {
-      watch.disconnect();
-      bound.forEach((el) => {
-        el.removeEventListener("pointerenter", enter);
-        el.removeEventListener("pointerleave", leave);
-        el.removeEventListener("pointerenter", peek);
-      });
+      watchers.forEach((watch) => watch.disconnect());
+      bound.forEach(([el, type, fn]) => el.removeEventListener(type, fn));
     };
-  }, [enabled, paused]);
+  }, [enabled, paused, lite]);
 
   useEffect(() => {
     if (!enabled) return undefined;

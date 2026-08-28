@@ -313,6 +313,45 @@ p, h1, h2, h3, h4, h5, li, blockquote, figcaption, dd, dt {
   animation: bot-fix-sparks 0.38s ease-in-out infinite;
 }
 
+.bot-paused .bot-sprite,
+.bot-paused .bot-glow,
+.bot-paused .bot-blink,
+.bot-paused .bot-arm-near,
+.bot-paused .bot-arm-far,
+.bot-paused .bot-leg-front,
+.bot-paused .bot-leg-back,
+.bot-paused .bot-kit,
+.bot-paused .bot-kit-book,
+.bot-paused .bot-kit-clip,
+.bot-paused .bot-kit-board,
+.bot-paused .bot-kit-papers,
+.bot-paused .bot-kit-plaque {
+  animation-play-state: paused !important;
+}
+
+@media (max-width: 767px) {
+  .bot-sprite {
+    animation-duration: 4.2s;
+  }
+
+  .bot-glow {
+    animation-duration: 2.6s;
+  }
+
+  .bot-blink {
+    animation-duration: 4.8s;
+  }
+
+  .bot-teach-lecture:not(.bot-wave):not(.bot-walk) .bot-arm-near,
+  .bot-teach-book .bot-kit-book,
+  .bot-teach-grade .bot-kit-clip,
+  .bot-teach-chalk .bot-kit-board,
+  .bot-teach-review .bot-kit-papers,
+  .bot-teach-invite .bot-kit-plaque {
+    animation: none;
+  }
+}
+
 @keyframes bot-fix-look {
   0%, 100% { transform: rotate(10deg); }
   50% { transform: rotate(20deg); }
