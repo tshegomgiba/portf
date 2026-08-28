@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo, lazy, Suspense } from 'react';
+import React, { useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react';
 import { FaGithub, FaLinkedin, FaEnvelope } from "react-icons/fa";
 import { FiDownload } from "react-icons/fi";
 import Aos from 'aos';
 import 'aos/dist/aos.css';
 import img1 from '../images/self-ghibli.png';
 import heroBg from '../images/pexels-stywo-1054218.webp';
-import { motion } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { Typewriter } from "react-simple-typewriter";
 import { profile, socialLinks } from "../data/profile";
 
@@ -15,10 +15,139 @@ const SOCIAL_ICONS = {
   email: FaEnvelope,
 };
 
-// Three.js is a heavy bundle, so it loads after the hero paints.
 const HeroOrb = lazy(() => import("../animation/HeroOrb"));
 const Stars = lazy(() => import("../animation/stars"));
 const HeroBgAnimation = lazy(() => import("../Hero/HeroBgAnimation"));
+
+const PortraitCoin = ({ src, alt }) => {
+  const [spins, setSpins] = useState(0);
+  const [spinning, setSpinning] = useState(false);
+  const taps = useRef({ count: 0, last: 0 });
+  const still = useMemo(() => {
+    if (typeof window === "undefined") return true;
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }, []);
+  const follow = useMemo(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(pointer: fine)").matches && !still;
+  }, [still]);
+
+  const pointX = useMotionValue(0);
+  const pointY = useMotionValue(0);
+  const spring = { stiffness: 180, damping: 18, mass: 0.55 };
+  const tiltX = useSpring(useTransform(pointY, [-0.5, 0.5], [16, -16]), spring);
+  const tiltY = useSpring(useTransform(pointX, [-0.5, 0.5], [-18, 18]), spring);
+
+  const track = (event) => {
+    if (!follow || spinning) return;
+    const box = event.currentTarget.getBoundingClientRect();
+    pointX.set((event.clientX - box.left) / box.width - 0.5);
+    pointY.set((event.clientY - box.top) / box.height - 0.5);
+  };
+
+  const resetTilt = () => {
+    pointX.set(0);
+    pointY.set(0);
+  };
+
+  const onTap = () => {
+    const now = Date.now();
+    if (now - taps.current.last > 850) taps.current.count = 0;
+    taps.current.count += 1;
+    taps.current.last = now;
+    if (taps.current.count < 3) return;
+    taps.current.count = 0;
+    setSpinning(true);
+    setSpins((n) => n + 1);
+  };
+
+  return (
+    <motion.div
+      className="relative z-10"
+      style={{ perspective: 900 }}
+      whileTap={{ scale: 0.97 }}
+    >
+      <span className="pointer-events-none absolute -inset-2 rounded-full bg-gradient-to-br from-[#7ec8e3]/45 via-transparent to-white/10 blur-md" />
+      <div
+        role="button"
+        tabIndex={0}
+        aria-label="Portrait. Tap three times to spin."
+        onClick={onTap}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            onTap();
+          }
+        }}
+        onPointerMove={track}
+        onPointerLeave={resetTilt}
+        className="relative h-36 w-36 cursor-pointer touch-manipulation select-none overflow-visible rounded-full sm:h-44 sm:w-44 md:h-52 md:w-52"
+        style={{ transformStyle: "preserve-3d" }}
+      >
+        <motion.div
+          className="absolute inset-0"
+          animate={{ rotateY: spins * 360 }}
+          transition={{ duration: spinning ? 1.15 : 0, ease: [0.22, 0.8, 0.2, 1] }}
+          onAnimationComplete={() => setSpinning(false)}
+          style={{ transformStyle: "preserve-3d" }}
+        >
+          <motion.div
+            className="absolute inset-0"
+            style={{
+              transformStyle: "preserve-3d",
+              rotateX: follow && !spinning ? tiltX : 0,
+              rotateY: follow && !spinning ? tiltY : 0,
+            }}
+            animate={
+              spinning || still || follow
+                ? undefined
+                : { rotateX: [8, -5, 8], rotateY: [-12, 14, -12] }
+            }
+            transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <span
+              className="pointer-events-none absolute inset-[-10%] rounded-full bg-[#0d1720]/40 blur-xl"
+              style={{ transform: "translateZ(-28px)" }}
+            />
+
+            <div
+              className="absolute inset-0 overflow-hidden rounded-full ring-2 ring-white/40 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)]"
+              style={{
+                backfaceVisibility: "hidden",
+                WebkitBackfaceVisibility: "hidden",
+                transform: "translateZ(18px)",
+              }}
+            >
+              <img
+                className="h-full w-full object-cover object-[46%_16%]"
+                src={src}
+                alt={alt}
+                width={208}
+                height={208}
+                fetchPriority="high"
+                draggable="false"
+              />
+              <span className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-t from-[#0d1720]/25 via-transparent to-white/15" />
+            </div>
+
+            <div
+              className="absolute inset-0 flex items-center justify-center rounded-full bg-[#16232f] ring-2 ring-white/35"
+              style={{
+                backfaceVisibility: "hidden",
+                WebkitBackfaceVisibility: "hidden",
+                transform: "rotateY(180deg) translateZ(18px)",
+              }}
+            >
+              <span className="font-display text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+                TM<span className="text-[#7ec8e3]">.</span>
+              </span>
+            </div>
+          </motion.div>
+        </motion.div>
+      </div>
+    </motion.div>
+  );
+};
 
 const Hero = () => {
   const lite = typeof window !== "undefined" && window.innerWidth < 768;
@@ -107,27 +236,13 @@ const Hero = () => {
             </>
           )}
 
-          {/* Slow rotating ring */}
           <motion.span
-            className="absolute rounded-full border border-dashed border-[#7ec8e3]/40 w-44 h-44 sm:w-52 sm:h-52 md:w-60 md:h-60"
+            className="pointer-events-none absolute rounded-full border border-dashed border-[#7ec8e3]/40 w-44 h-44 sm:w-52 sm:h-52 md:w-60 md:h-60"
             animate={{ rotate: 360 }}
             transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
           />
 
-          <div className="relative z-10 group">
-            <span className="absolute -inset-2 rounded-full bg-gradient-to-br from-[#7ec8e3]/45 via-transparent to-white/10 blur-md" />
-            <div className="relative overflow-hidden rounded-full ring-2 ring-white/40 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)]">
-              <img
-                className="relative h-36 w-36 object-cover object-[46%_16%] sm:h-44 sm:w-44 md:h-52 md:w-52 transition-transform duration-500 group-hover:scale-105"
-                src={img1}
-                alt={profile.name}
-                width={208}
-                height={208}
-                fetchPriority="high"
-              />
-              <span className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-t from-[#0d1720]/25 via-transparent to-transparent" />
-            </div>
-          </div>
+          <PortraitCoin src={img1} alt={profile.name} />
         </div>
 
         <p className="eyebrow mt-8 text-[#7ec8e3]" data-aos="fade-up">
