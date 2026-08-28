@@ -19,6 +19,12 @@ html {
 @media (min-width: 768px) {
   html {
     scroll-behavior: smooth;
+    scrollbar-width: none;
+  }
+
+  html::-webkit-scrollbar {
+    width: 0;
+    height: 0;
   }
 }
 

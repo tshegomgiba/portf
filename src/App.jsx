@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import "./App.css";
 import Navbar from "./Components/Navbar";
 import ScrollProgress from "./Components/ScrollProgress";
+import SideScroller from "./Components/SideScroller";
 import About from "./Components/About";
 import Experience from "./Components/Experience";
 import ContactUs from "./Components/Contact";
@@ -61,6 +62,7 @@ function App() {
       <ReadAlong key={`read-${session}`} />
       <AtmosphereToggle />
       <ScrollProgress />
+      <SideScroller />
       <Navbar />
       <DesktopHint />
       <Hero />
