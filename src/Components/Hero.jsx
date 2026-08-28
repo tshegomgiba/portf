@@ -3,7 +3,7 @@ import { FaGithub, FaLinkedin, FaEnvelope } from "react-icons/fa";
 import { FiDownload } from "react-icons/fi";
 import Aos from 'aos';
 import 'aos/dist/aos.css';
-import img1 from '../images/portrait.webp';
+import img1 from '../images/self.png';
 import heroBg from '../images/pexels-stywo-1054218.webp';
 import { motion } from 'framer-motion';
 import { Typewriter } from "react-simple-typewriter";
@@ -115,12 +115,18 @@ const Hero = () => {
           />
 
           <div className="relative z-10 group">
-            <span className="absolute -inset-2 rounded-full bg-gradient-to-br from-[#7ec8e3]/40 via-transparent to-white/20 blur-md" />
-            <img
-              className="relative w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 rounded-full object-cover shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] ring-2 ring-white/40 transition-transform duration-500 group-hover:scale-105"
-              src={img1}
-              alt={profile.name}
-            />
+            <span className="absolute -inset-2 rounded-full bg-gradient-to-br from-[#7ec8e3]/45 via-transparent to-white/10 blur-md" />
+            <div className="relative overflow-hidden rounded-full ring-2 ring-white/40 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)]">
+              <img
+                className="relative h-36 w-36 object-cover object-[center_18%] sm:h-44 sm:w-44 md:h-52 md:w-52 transition-transform duration-500 group-hover:scale-105"
+                src={img1}
+                alt={profile.name}
+                width={208}
+                height={208}
+                fetchPriority="high"
+              />
+              <span className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-t from-[#0d1720]/45 via-transparent to-[#7ec8e3]/12" />
+            </div>
           </div>
         </div>
 
