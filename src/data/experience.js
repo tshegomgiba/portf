@@ -72,11 +72,6 @@ export const education = [
     award: "Diploma in Information Technology (Software Development)",
     period: "2021 – 2023",
   },
-  {
-    school: "Pretoria Central High School",
-    award: "Matric",
-    period: "2015 – 2019",
-  },
 ];
 
 export const certifications = [
@@ -85,11 +80,4 @@ export const certifications = [
   { name: "Graphic Design", issuer: "Oasis Infobyte", year: "2025" },
   { name: "Internship Completion", issuer: "Tshimologong Precinct", year: "2025" },
   { name: "Web Development & Design", issuer: "Oasis Infobyte", year: "2024" },
-];
-
-export const languages = [
-  { name: "English", level: "Fluent" },
-  { name: "Northern Sotho", level: "Native" },
-  { name: "IsiZulu", level: "Conversational" },
-  { name: "Afrikaans", level: "Basic" },
 ];

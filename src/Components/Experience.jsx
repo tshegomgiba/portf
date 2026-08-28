@@ -2,13 +2,12 @@ import React, { useEffect, useState } from "react";
 import Aos from "aos";
 import "aos/dist/aos.css";
 import { motion, AnimatePresence } from "framer-motion";
-import { Briefcase, GraduationCap, Award, Languages, ExternalLink } from "lucide-react";
+import { Briefcase, GraduationCap, Award, ExternalLink } from "lucide-react";
 import {
   timeline,
   entries,
   education,
   certifications,
-  languages,
 } from "../data/experience";
 import { openWatchedSite } from "../animation/openSite";
 
@@ -285,25 +284,6 @@ const Experience = () => {
                     {item.award}
                   </p>
                 </div>
-              ))}
-            </div>
-
-            <div className="rule my-6" />
-
-            <div className="flex items-center gap-2.5 mb-4">
-              <Languages className="w-5 h-5 text-[#2f7ea8]" />
-              <h3 className="font-display text-lg font-bold text-[#16232f]">
-                Languages
-              </h3>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {languages.map((lang) => (
-                <span
-                  key={lang.name}
-                  className="text-xs text-[#4a6076] border border-[#16232f]/15 rounded-full px-3 py-1.5"
-                >
-                  {lang.name} · <span className="text-[#2f7ea8]">{lang.level}</span>
-                </span>
               ))}
             </div>
           </motion.div>

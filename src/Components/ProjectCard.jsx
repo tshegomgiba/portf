@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { FiGithub, FiCode, FiExternalLink, FiStar } from "react-icons/fi";
+import { FiCode, FiExternalLink, FiStar } from "react-icons/fi";
 import { openWatchedSite } from "../animation/openSite";
 
 const TILT = 12;
@@ -153,7 +153,7 @@ const ProjectCard = ({ project, index, statusColor }) => {
             <h3 className="mb-2.5 font-display text-lg font-bold text-[#16232f] transition-colors group-hover:text-[#2f7ea8]">
               {project.title}
             </h3>
-            <p className="mb-5 line-clamp-3 text-sm font-light leading-relaxed text-[#4a6076]">
+            <p className="mb-5 text-sm font-light leading-relaxed text-[#4a6076]">
               {project.description}
             </p>
 
@@ -185,17 +185,8 @@ const ProjectCard = ({ project, index, statusColor }) => {
                 whileHover={{ x: 4 }}
                 whileTap={{ scale: 0.95 }}
               >
-                {project.link.includes("github.com") ? (
-                  <>
-                    <FiGithub className="h-4 w-4" />
-                    View code
-                  </>
-                ) : (
-                  <>
-                    <FiExternalLink className="h-4 w-4" />
-                    Visit site
-                  </>
-                )}
+                <FiExternalLink className="h-4 w-4" />
+                Visit site
               </motion.a>
             ) : (
               <span className="inline-flex items-center gap-2 text-sm font-medium text-[#4a6076]/70">

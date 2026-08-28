@@ -10,6 +10,8 @@ import {
   CheckCircle2,
   AlertCircle,
 } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
+import { profile } from "../data/profile";
 
 // Web3Forms access keys are public client keys. Keep a fallback so a Vercel
 // build that did not pick up `.env.production` still reaches the inbox.
@@ -267,7 +269,7 @@ const CosmicContactForm = () => {
             transition={{ duration: 0.6, delay: 0.1 }}
           >
             <motion.a
-              href="mailto:tshegofatsononyane009@gmail.com"
+              href={`mailto:${profile.email}`}
               className="flex items-center gap-4 p-5 rounded-2xl bg-white/[0.05] border border-white/10 hover:border-[#7ec8e3]/50 hover:bg-white/[0.09] transition-all group"
               whileHover={{ y: -4 }}
             >
@@ -279,14 +281,14 @@ const CosmicContactForm = () => {
                   Email
                 </p>
                 <p className="text-white text-sm truncate">
-                  tshegofatsononyane009@gmail.com
+                  {profile.email}
                 </p>
               </div>
               <ArrowUpRight className="ml-auto text-white/30 group-hover:text-[#7ec8e3] transition-colors" size={18} />
             </motion.a>
 
             <motion.a
-              href="tel:+27815038545"
+              href={profile.phoneHref}
               className="flex items-center gap-4 p-5 rounded-2xl bg-white/[0.05] border border-white/10 hover:border-[#7ec8e3]/50 hover:bg-white/[0.09] transition-all group"
               whileHover={{ y: -4 }}
             >
@@ -297,10 +299,31 @@ const CosmicContactForm = () => {
                 <p className="text-[11px] tracking-[0.2em] uppercase text-white/40 font-display font-semibold">
                   Phone
                 </p>
-                <p className="text-white text-sm">+27 81 503 8545</p>
+                <p className="text-white text-sm">{profile.phone}</p>
               </div>
               <ArrowUpRight className="ml-auto text-white/30 group-hover:text-[#7ec8e3] transition-colors" size={18} />
             </motion.a>
+
+            {profile.whatsapp && (
+              <motion.a
+                href={profile.whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-4 p-5 rounded-2xl bg-white/[0.05] border border-white/10 hover:border-[#7ec8e3]/50 hover:bg-white/[0.09] transition-all group"
+                whileHover={{ y: -4 }}
+              >
+                <div className="p-2.5 rounded-xl bg-white/10">
+                  <FaWhatsapp className="text-[#7ec8e3]" size={20} />
+                </div>
+                <div>
+                  <p className="text-[11px] tracking-[0.2em] uppercase text-white/40 font-display font-semibold">
+                    WhatsApp
+                  </p>
+                  <p className="text-white text-sm">{profile.phone}</p>
+                </div>
+                <ArrowUpRight className="ml-auto text-white/30 group-hover:text-[#7ec8e3] transition-colors" size={18} />
+              </motion.a>
+            )}
 
             <div className="flex items-center gap-4 p-5 rounded-2xl bg-white/[0.05] border border-white/10">
               <div className="p-2.5 rounded-xl bg-white/10">
@@ -311,7 +334,7 @@ const CosmicContactForm = () => {
                   Location
                 </p>
                 <p className="text-white text-sm">
-                  Pretoria &amp; Johannesburg, South Africa
+                  {profile.location}
                 </p>
               </div>
             </div>
@@ -321,8 +344,7 @@ const CosmicContactForm = () => {
                 Currently available
               </p>
               <p className="text-white/55 text-sm font-light leading-relaxed">
-                Open to remote collaboration, freelance work, and full-time
-                roles. Drop a message and let's build something sharp.
+                {profile.availability}
               </p>
             </div>
           </motion.div>

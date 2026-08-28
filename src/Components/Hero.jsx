@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, lazy, Suspense } from 'react';
-import { FaGithub, FaLinkedin, FaEnvelope } from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaEnvelope, FaWhatsapp } from "react-icons/fa";
 import { FiDownload } from "react-icons/fi";
 import Aos from 'aos';
 import 'aos/dist/aos.css';
@@ -13,6 +13,7 @@ import WelcomeAvalanche from "../animation/WelcomeAvalanche";
 const SOCIAL_ICONS = {
   github: FaGithub,
   linkedin: FaLinkedin,
+  whatsapp: FaWhatsapp,
   email: FaEnvelope,
 };
 
@@ -323,6 +324,9 @@ const Hero = () => {
 
         <p className="mt-4 text-xs tracking-[0.2em] uppercase text-white/40 font-display" data-aos="fade-up">
           Pretoria &amp; Johannesburg · South Africa
+        </p>
+        <p className="mt-3 max-w-xl text-sm font-light leading-relaxed text-white/65" data-aos="fade-up">
+          {profile.availability}
         </p>
 
         <div className="mt-8 flex flex-col sm:flex-row items-center gap-4" data-aos="fade-up">
