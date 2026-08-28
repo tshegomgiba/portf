@@ -16,36 +16,45 @@ import { restartExperience } from "./experience";
 
 const HINT = "restart-hint";
 
-const pill = (active) =>
-  `flex h-11 min-w-[6.75rem] md:h-10 md:min-w-0 items-center justify-center gap-2 rounded-full border px-3 backdrop-blur-md select-none [-webkit-tap-highlight-color:transparent] transition-[background-color,color,box-shadow,border-color] duration-150 ${
-    active
-      ? "border-[#7ec8e3]/70 bg-[#2f7ea8] text-white shadow-[0_0_0_2px_rgba(126,200,227,0.35)]"
-      : "border-white/15 bg-[#16232f]/80 text-white/70"
-  }`;
-
-const tag = "font-display text-[9px] font-bold uppercase tracking-[0.16em]";
-
 const Control = ({ active, onClick, children, ...rest }) => {
+  const action = useRef(onClick);
+  action.current = onClick;
+  const last = useRef(0);
   const [down, setDown] = useState(false);
-  const lift = () => setDown(false);
+
+  const fire = (event) => {
+    event.stopPropagation();
+    if (event.type === "pointerup") {
+      if (event.pointerType === "mouse" && event.button !== 0) return;
+      const box = event.currentTarget.getBoundingClientRect();
+      if (
+        event.clientX < box.left ||
+        event.clientX > box.right ||
+        event.clientY < box.top ||
+        event.clientY > box.bottom
+      ) {
+        return;
+      }
+    }
+    const now = performance.now();
+    if (now - last.current < 280) return;
+    last.current = now;
+    action.current();
+  };
 
   return (
-    <motion.button
+    <button
       type="button"
-      whileTap={{ scale: 0.92 }}
-      transition={{ type: "spring", stiffness: 520, damping: 26 }}
-      onClick={onClick}
+      onClick={fire}
+      onPointerUp={fire}
       onPointerDown={() => setDown(true)}
-      onPointerUp={lift}
-      onPointerCancel={lift}
-      onPointerLeave={lift}
-      className={`${pill(active)} ${
-        down ? "brightness-125 ring-2 ring-[#7ec8e3]/80" : ""
-      }`}
+      onPointerCancel={() => setDown(false)}
+      onPointerLeave={() => setDown(false)}
+      className={`control-hit${active ? " is-on" : ""}${down ? " is-down" : ""}`}
       {...rest}
     >
       {children}
-    </motion.button>
+    </button>
   );
 };
 
@@ -55,12 +64,24 @@ const AtmosphereToggle = () => {
   const [tour, setTour] = useState(isAutoScrollOn);
   const [hint, setHint] = useState(false);
   const [flashed, setFlashed] = useState(null);
+  const [typing, setTyping] = useState(false);
   const said = useRef(false);
   const timers = useRef([]);
 
   useEffect(() => watchAtmosphere(setSound), []);
   useEffect(() => watchRepeat(setRepeat), []);
   useEffect(() => watchAutoScroll(setTour), []);
+
+  useEffect(() => {
+    const check = () =>
+      setTyping(["INPUT", "TEXTAREA"].includes(document.activeElement?.tagName));
+    window.addEventListener("focusin", check);
+    window.addEventListener("focusout", check);
+    return () => {
+      window.removeEventListener("focusin", check);
+      window.removeEventListener("focusout", check);
+    };
+  }, []);
 
   useEffect(() => {
     try {
@@ -111,11 +132,14 @@ const AtmosphereToggle = () => {
   };
 
   return (
-    <div
-      className="fixed z-[65] flex max-w-[calc(100vw-1.5rem)] flex-col items-end gap-2 [touch-action:manipulation] sm:max-w-none"
+    <nav
+      data-control-dock
+      aria-label="Experience controls"
+      className={`control-dock${typing ? " is-away" : ""}`}
       style={{
-        right: "max(1rem, env(safe-area-inset-right))",
-        bottom: "max(1rem, env(safe-area-inset-bottom))",
+        left: "max(0.65rem, env(safe-area-inset-left))",
+        right: "max(0.65rem, env(safe-area-inset-right))",
+        bottom: "max(0.45rem, env(safe-area-inset-bottom))",
       }}
     >
       <AnimatePresence>
@@ -125,23 +149,23 @@ const AtmosphereToggle = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 6, scale: 0.96 }}
             transition={{ duration: 0.35, ease: "easeOut" }}
-            className="relative w-[min(16.75rem,calc(100vw-2rem))]"
+            className="control-hint"
           >
             <div className="rounded-2xl border border-white/15 bg-[#16232f]/95 px-3 py-2.5 shadow-[0_18px_40px_-18px_rgba(13,23,32,0.9)] backdrop-blur-md">
               <p className="font-display text-[9px] font-bold uppercase tracking-[0.2em] text-[#7ec8e3]">
                 Controls
               </p>
               <p className="mt-1 text-[12px] leading-snug text-white/80">
-                Tap Restart to begin again. Tour walks the page. Repeat and
-                Sound stay in this corner.
+                Restart begins again. Tour walks the page. Repeat and Sound
+                stay here.
               </p>
             </div>
-            <span className="absolute right-6 top-full h-2 w-2 -translate-y-1 rotate-45 border-b border-r border-white/15 bg-[#16232f]/95" />
+            <span className="control-hint-arrow" />
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="flex flex-col items-end gap-1.5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-2">
+      <div className="control-rail" role="toolbar" aria-label="Playback">
         <Control
           active={flashed === "restart"}
           data-experience-restart
@@ -150,7 +174,7 @@ const AtmosphereToggle = () => {
           aria-label="Restart the experience from the first line"
         >
           <RotateCcw size={15} />
-          <span className={tag}>Restart</span>
+          <span className="control-tag">Restart</span>
         </Control>
         <Control
           active={tour}
@@ -166,10 +190,11 @@ const AtmosphereToggle = () => {
           aria-pressed={tour}
         >
           <ChevronsDown size={16} />
-          <span className={tag}>Tour</span>
+          <span className="control-tag">Tour</span>
         </Control>
         <Control
           active={repeat}
+          data-repeat-toggle
           onClick={() => {
             hideHint();
             setRepeat(toggleRepeat());
@@ -179,7 +204,7 @@ const AtmosphereToggle = () => {
           aria-pressed={repeat}
         >
           <Repeat size={15} />
-          <span className={tag}>Repeat</span>
+          <span className="control-tag">Repeat</span>
         </Control>
         <Control
           active={sound}
@@ -192,10 +217,10 @@ const AtmosphereToggle = () => {
           aria-pressed={!sound}
         >
           {sound ? <Volume2 size={16} /> : <VolumeX size={16} />}
-          <span className={tag}>{sound ? "Sound" : "Muted"}</span>
+          <span className="control-tag">{sound ? "Sound" : "Muted"}</span>
         </Control>
       </div>
-    </div>
+    </nav>
   );
 };
 

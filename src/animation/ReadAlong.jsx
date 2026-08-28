@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Play, Square } from "lucide-react";
 import { getTalk } from "./dialogue";
 
-const SKIP = "a, button, input, textarea, select, nav, canvas, [role='button'], [data-sound-toggle], [data-listen-chip]";
+const SKIP = "a, button, input, textarea, select, nav, canvas, [role='button'], [data-sound-toggle], [data-control-dock], [data-listen-chip]";
 const COPY = "p, h1, h2, h3, h4, h5, li, blockquote, figcaption, dd, dt";
 
 const caretRange = (x, y) => {
@@ -52,7 +52,8 @@ const chipPos = (marks) => {
     left = Math.max(12, marks[0].left);
     top = last.top + last.height + 8;
   }
-  const maxTop = window.innerHeight - 48;
+  const phone = window.matchMedia("(max-width: 767px)").matches;
+  const maxTop = window.innerHeight - (phone ? 108 : 48);
   if (top < 8) top = 8;
   if (top > maxTop) top = maxTop;
   return { left, top };

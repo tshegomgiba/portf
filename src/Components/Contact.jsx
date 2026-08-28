@@ -107,7 +107,7 @@ const CosmicContactForm = () => {
   return (
     <section
       id="contact"
-      className="relative pt-16 pb-32 md:py-28 px-5 md:px-6 lg:px-10 overflow-hidden bg-[#16232f]"
+      className="relative overflow-hidden bg-[#16232f] px-5 pt-16 pb-[calc(10.5rem+var(--control-dock-space)+env(safe-area-inset-bottom,0px))] md:px-6 md:py-28 lg:px-10"
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(126,200,227,0.15),transparent_50%)] pointer-events-none" />
 

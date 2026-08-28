@@ -255,79 +255,98 @@ const Experience = () => {
         </div>
 
         {/* Education + Certifications */}
-        <div className="grid lg:grid-cols-2 gap-8 mt-16">
-          <motion.div
-            className="ink-card rounded-3xl p-7"
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            data-aos="fade-right"
-          >
-            <div className="flex items-center gap-2.5 mb-6">
-              <GraduationCap className="w-5 h-5 text-[#2f7ea8]" />
-              <h3 className="font-display text-lg font-bold text-[#16232f]">
-                Education
-              </h3>
-            </div>
+        <div className="mt-16">
+          <div className="rule mb-10" />
 
-            <div className="space-y-5">
-              {education.map((item) => (
-                <div key={item.school}>
-                  <div className="flex items-baseline justify-between gap-3">
-                    <p className="font-medium text-[#16232f]">{item.school}</p>
-                    <span className="text-xs text-[#4a6076] whitespace-nowrap">
-                      {item.period}
+          <div className="grid items-start gap-10 lg:grid-cols-12 lg:gap-12">
+            <motion.div
+              className="lg:col-span-4"
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="mb-4 flex items-center gap-2">
+                <GraduationCap className="h-3.5 w-3.5 text-[#2f7ea8]" />
+                <p className="font-display text-[11px] font-bold uppercase tracking-[0.18em] text-[#4a6076]">
+                  Education
+                </p>
+              </div>
+
+              {education.map((item) => {
+                const [from, to] = item.period.split(/\s+[–-]\s+/);
+                return (
+                  <div
+                    key={item.school}
+                    className="flex overflow-hidden rounded-2xl border border-white/50 shadow-[0_14px_32px_-28px_rgba(22,35,47,0.55)]"
+                  >
+                    <div className="flex w-16 flex-shrink-0 flex-col items-center justify-center bg-[#16232f] px-2 py-4 text-center">
+                      <GraduationCap className="h-4 w-4 text-[#7ec8e3]" />
+                      <p className="mt-2 font-display text-[11px] font-bold tabular-nums text-white">
+                        {from}
+                      </p>
+                      {to && (
+                        <>
+                          <span className="my-0.5 block h-3 w-px bg-[#7ec8e3]/50" />
+                          <p className="font-display text-[11px] font-bold tabular-nums text-white">
+                            {to}
+                          </p>
+                        </>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1 bg-white/45 px-4 py-3.5 backdrop-blur-md">
+                      <p className="font-display text-[15px] font-bold leading-snug text-[#16232f]">
+                        {item.school}
+                      </p>
+                      <p className="mt-1 text-[12px] font-light leading-snug text-[#4a6076]">
+                        {item.award}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </motion.div>
+
+            <motion.div
+              className="lg:col-span-8"
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.08 }}
+            >
+              <div className="mb-4 flex items-center gap-2">
+                <Award className="h-3.5 w-3.5 text-[#2f7ea8]" />
+                <p className="font-display text-[11px] font-bold uppercase tracking-[0.18em] text-[#4a6076]">
+                  Certifications
+                </p>
+              </div>
+
+              <div className="grid gap-2.5 sm:grid-cols-2">
+                {certifications.map((cert, index) => (
+                  <motion.div
+                    key={cert.name}
+                    className="frost-tile flex items-start gap-3 rounded-2xl px-3.5 py-3"
+                    initial={{ opacity: 0, y: 12 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: index * 0.05 }}
+                  >
+                    <span className="mt-0.5 font-display text-[11px] font-bold tabular-nums text-[#2f7ea8]">
+                      {cert.year}
                     </span>
-                  </div>
-                  <p className="text-sm text-[#4a6076] font-light mt-1">
-                    {item.award}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-
-          <motion.div
-            className="ink-card rounded-3xl p-7"
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            data-aos="fade-left"
-          >
-            <div className="flex items-center gap-2.5 mb-6">
-              <Award className="w-5 h-5 text-[#2f7ea8]" />
-              <h3 className="font-display text-lg font-bold text-[#16232f]">
-                Certifications
-              </h3>
-            </div>
-
-            <div className="space-y-3">
-              {certifications.map((cert, index) => (
-                <motion.div
-                  key={cert.name}
-                  className="flex items-baseline justify-between gap-3 pb-3 border-b border-[#16232f]/10 last:border-0 last:pb-0"
-                  initial={{ opacity: 0, x: 20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.45, delay: index * 0.08 }}
-                >
-                  <div>
-                    <p className="text-sm font-medium text-[#16232f]">
-                      {cert.name}
-                    </p>
-                    <p className="text-xs text-[#4a6076] font-light mt-0.5">
-                      {cert.issuer}
-                    </p>
-                  </div>
-                  <span className="font-display text-xs font-bold text-[#2f7ea8]">
-                    {cert.year}
-                  </span>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-medium leading-snug text-[#16232f]">
+                        {cert.name}
+                      </p>
+                      <p className="mt-0.5 text-[11px] font-light text-[#4a6076]">
+                        {cert.issuer}
+                      </p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
         </div>
       </div>
     </section>

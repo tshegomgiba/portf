@@ -113,18 +113,20 @@ const MiniCompanion = () => {
 
   return (
     <div
-      className={`mini-bots pointer-events-none fixed left-3 z-40 flex justify-start${
+      className={`mini-bots pointer-events-none fixed z-40 flex justify-start${
         paused ? " bot-paused" : ""
       }`}
       style={{
-        bottom: "max(0.75rem, env(safe-area-inset-bottom))",
+        left: "max(0.75rem, env(safe-area-inset-left))",
+        bottom:
+          "calc(var(--control-dock-space) + env(safe-area-inset-bottom, 0px))",
         contain: "layout style",
       }}
     >
       <motion.div
         animate={{ opacity: away ? 0 : 1, y: away ? 12 : 0 }}
         transition={{ duration: 0.22, ease: "easeOut" }}
-        className="flex max-w-[min(18rem,calc(100vw-6.5rem))] flex-col items-start"
+        className="flex max-w-[min(20rem,calc(100vw-1.5rem))] flex-col items-start"
       >
         <AnimatePresence mode="wait">
           {line && !away && (

@@ -20,7 +20,7 @@ const KEYS = new Set([
 const onControl = (node) =>
   Boolean(
     node?.closest?.(
-      "[data-auto-scroll], [data-experience-restart], [data-sound-toggle], button, a[href]:not([href^='#'])"
+      "[data-control-dock], [data-auto-scroll], [data-experience-restart], [data-sound-toggle], [data-repeat-toggle], button, a[href]:not([href^='#'])"
     )
   );
 

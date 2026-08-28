@@ -48,7 +48,7 @@ const navOffset = () => {
 const onControls = (node) =>
   Boolean(
     node?.closest?.(
-      "[data-auto-scroll], [data-experience-restart], [data-sound-toggle]"
+      "[data-control-dock], [data-auto-scroll], [data-experience-restart], [data-sound-toggle], [data-repeat-toggle]"
     )
   );
 
