@@ -8,6 +8,7 @@ import heroBg from '../images/pexels-stywo-1054218.webp';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { Typewriter } from "react-simple-typewriter";
 import { profile, socialLinks } from "../data/profile";
+import WelcomeAvalanche from "../animation/WelcomeAvalanche";
 
 const SOCIAL_ICONS = {
   github: FaGithub,
@@ -19,7 +20,7 @@ const HeroOrb = lazy(() => import("../animation/HeroOrb"));
 const Stars = lazy(() => import("../animation/stars"));
 const HeroBgAnimation = lazy(() => import("../Hero/HeroBgAnimation"));
 
-const PortraitCoin = ({ src, alt }) => {
+const PortraitCoin = ({ src, alt, onCheer }) => {
   const [spins, setSpins] = useState(0);
   const [spinning, setSpinning] = useState(false);
   const still = useMemo(() => {
@@ -82,7 +83,11 @@ const PortraitCoin = ({ src, alt }) => {
           className="absolute inset-0"
           animate={{ rotateY: spins * 360 }}
           transition={{ duration: spinning ? 1.15 : 0, ease: [0.22, 0.8, 0.2, 1] }}
-          onAnimationComplete={() => setSpinning(false)}
+          onAnimationComplete={() => {
+            if (!spinning) return;
+            setSpinning(false);
+            onCheer?.();
+          }}
           style={{ transformStyle: "preserve-3d" }}
         >
           <motion.div
@@ -145,6 +150,7 @@ const PortraitCoin = ({ src, alt }) => {
 
 const Hero = () => {
   const lite = typeof window !== "undefined" && window.innerWidth < 768;
+  const [hello, setHello] = useState(0);
   const twinkleStars = useMemo(
     () =>
       Array.from({ length: lite ? 18 : 80 }, (_, i) => ({
@@ -236,7 +242,11 @@ const Hero = () => {
             transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
           />
 
-          <PortraitCoin src={img1} alt={profile.name} />
+          <PortraitCoin
+            src={img1}
+            alt={profile.name}
+            onCheer={() => setHello((n) => n + 1)}
+          />
         </div>
 
         <p className="eyebrow mt-8 text-[#7ec8e3]" data-aos="fade-up">
@@ -367,6 +377,7 @@ const Hero = () => {
           </svg>
         </motion.div>
       </div>
+      <WelcomeAvalanche play={hello} lite={lite} />
     </motion.div>
   );
 };
